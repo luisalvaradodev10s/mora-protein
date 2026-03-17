@@ -26,7 +26,7 @@ export default function App() {
           <Stack.Screen 
             name="Home" 
             component={HomeScreen} 
-            options={{ headerShown: false }} 
+            options={{ headerShown: false, title: 'Mora Protein' }} 
           />
           <Stack.Screen 
             name="Cart" 
