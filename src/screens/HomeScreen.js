@@ -9,6 +9,8 @@ export default function HomeScreen({ navigation }) {
   const [selectedCoverage, setSelectedCoverage] = useState({});
   const [selectedQuantity, setSelectedQuantity] = useState({});
   const [isAboutVisible, setIsAboutVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isProductModalVisible, setIsProductModalVisible] = useState(false);
   const { width } = useWindowDimensions();
   const scrollRef = useRef(null);
   const sectionPositions = useRef({});
@@ -48,7 +50,10 @@ export default function HomeScreen({ navigation }) {
         key={item.id}
         activeOpacity={0.8}
         style={[styles.card, { width: cardWidth }]}
-        onPress={() => navigation.navigate('ProductDetail', { product: item })}
+        onPress={() => {
+          setSelectedProduct(item);
+          setIsProductModalVisible(true);
+        }}
       >
         <View style={styles.imageContainer}>
           <Image
@@ -240,6 +245,46 @@ export default function HomeScreen({ navigation }) {
               nutrición y sabor en formatos prácticos, accesibles{'\n'}
               y fáciles de integrar al día a día.
             </Text>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={isProductModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsProductModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.productModalContent}>
+            <TouchableOpacity onPress={() => setIsProductModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
+            {selectedProduct && (
+              <>
+                <Image
+                  source={selectedProduct.image}
+                  style={styles.modalProductImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.modalProductInfo}>
+                  <Text style={styles.modalProductCategory}>{selectedProduct.category}</Text>
+                  <Text style={styles.modalProductName}>{selectedProduct.name}</Text>
+                  <Text style={styles.modalProductFlavor}>{selectedProduct.flavor || ''}</Text>
+                  <Text style={styles.modalProductDescription}>{selectedProduct.description}</Text>
+                  <Text style={styles.modalProductPrice}>${selectedProduct.price}</Text>
+                  <TouchableOpacity
+                    style={styles.modalViewDetailsButton}
+                    onPress={() => {
+                      setIsProductModalVisible(false);
+                      navigation.navigate('ProductDetail', { product: selectedProduct });
+                    }}
+                  >
+                    <Text style={styles.modalViewDetailsText}>Ver Detalles</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
           </View>
         </View>
       </Modal>
@@ -615,5 +660,74 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     textAlign: 'center',
+  },
+  productModalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    margin: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 10,
+    maxWidth: 400,
+    width: '90%',
+    maxHeight: '80%',
+  },
+  modalProductImage: {
+    width: '100%',
+    height: 200,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalProductInfo: {
+    padding: 20,
+  },
+  modalProductCategory: {
+    backgroundColor: '#F0E6D7',
+    color: '#4A3C2F',
+    fontSize: 10,
+    fontWeight: '800',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  modalProductName: {
+    color: '#1A1A1A',
+    fontSize: 24,
+    fontWeight: '900',
+    marginBottom: 4,
+  },
+  modalProductFlavor: {
+    color: '#6b7280',
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  modalProductDescription: {
+    color: '#666666',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  modalProductPrice: {
+    color: '#1A1A1A',
+    fontSize: 20,
+    fontWeight: '900',
+    marginBottom: 16,
+  },
+  modalViewDetailsButton: {
+    backgroundColor: '#1A1A1A',
+    paddingVertical: 12,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  modalViewDetailsText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
   },
 });
