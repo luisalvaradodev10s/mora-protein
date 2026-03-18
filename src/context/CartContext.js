@@ -5,36 +5,38 @@ export const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
-  const addToCart = (product) => {
+  const addToCart = (product, options = {}) => {
+    const cartItemId = `${product.id}:${options.coverage || 'default'}`;
+
     setCart(currentCart => {
-      const existingProduct = currentCart.find(item => item.id === product.id);
+      const existingProduct = currentCart.find(item => item.cartItemId === cartItemId);
       if (existingProduct) {
         return currentCart.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.cartItemId === cartItemId ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...currentCart, { ...product, quantity: 1 }];
+      return [...currentCart, { ...product, ...options, cartItemId, quantity: 1 }];
     });
   };
 
-  const incrementQuantity = (id) => {
+  const incrementQuantity = (cartItemId) => {
     setCart(currentCart =>
       currentCart.map(item =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+        item.cartItemId === cartItemId ? { ...item, quantity: item.quantity + 1 } : item
       )
     );
   };
 
-  const decrementQuantity = (id) => {
+  const decrementQuantity = (cartItemId) => {
     setCart(currentCart =>
       currentCart.map(item =>
-        item.id === id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
+        item.cartItemId === cartItemId && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item
       )
     );
   };
 
-  const removeItem = (id) => {
-    setCart(currentCart => currentCart.filter(item => item.id !== id));
+  const removeItem = (cartItemId) => {
+    setCart(currentCart => currentCart.filter(item => item.cartItemId !== cartItemId));
   };
 
   const getCartCount = () => {

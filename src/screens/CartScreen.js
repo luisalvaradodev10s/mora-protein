@@ -42,7 +42,9 @@ export default function CartScreen({ navigation }) {
     let text = '/// NUEVO PEDIDO MORA PROTEIN ///\n\n';
     
     cart.forEach(item => {
-      text += `[x${item.quantity}] ${item.name} -> $${item.price * item.quantity}\n`;
+      text += `[x${item.quantity}] ${item.name}`;
+      if (item.coverage) text += ` (${item.coverage})`;
+      text += ` -> $${item.price * item.quantity}\n`;
     });
     
     const subtotal = calculateSubtotal();
@@ -66,20 +68,21 @@ export default function CartScreen({ navigation }) {
       <View style={styles.cartItemInfo}>
         <View style={styles.cartItemContent}>
           <Text style={styles.cartItemName}>{item.name}</Text>
+          {item.coverage ? <Text style={styles.cartItemCoverage}>{item.coverage}</Text> : null}
           <Text style={styles.cartItemPriceUnit}>${item.price} c/u</Text>
         </View>
-        <TouchableOpacity style={styles.removeBtn} onPress={() => removeItem(item.id)}>
+        <TouchableOpacity style={styles.removeBtn} onPress={() => removeItem(item.cartItemId)}>
           <Trash2 color="#EF4444" size={20} />
         </TouchableOpacity>
       </View>
       
       <View style={styles.cartItemFooter}>
         <View style={styles.quantityControl}>
-          <TouchableOpacity style={styles.qtyBtn} onPress={() => decrementQuantity(item.id)}>
+          <TouchableOpacity style={styles.qtyBtn} onPress={() => decrementQuantity(item.cartItemId)}>
             <Minus color="#1A1A1A" size={16} />
           </TouchableOpacity>
           <Text style={styles.qtyText}>{item.quantity}</Text>
-          <TouchableOpacity style={styles.qtyBtn} onPress={() => incrementQuantity(item.id)}>
+          <TouchableOpacity style={styles.qtyBtn} onPress={() => incrementQuantity(item.cartItemId)}>
             <Plus color="#1A1A1A" size={16} />
           </TouchableOpacity>
         </View>
@@ -100,7 +103,7 @@ export default function CartScreen({ navigation }) {
         <FlatList
           data={cart}
           renderItem={renderCartItem}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.cartItemId || item.id}
           style={styles.cartList}
         />
 
@@ -189,6 +192,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
+  },
+  cartItemCoverage: {
+    color: '#6b7280',
+    fontSize: 12,
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
   cartItemPriceUnit: {
     color: '#A09385',
