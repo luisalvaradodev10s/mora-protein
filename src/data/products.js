@@ -41,7 +41,7 @@ export const products = [
     flavor: 'Tiramisú',
     description: '15g Proteína • Sin azúcar',
     price: 1900,
-    image: require('../../assets/barras.jpg'),
+    image: require('../../assets/barras-ilustacion.png'),
     category: 'Barras Proteicas',
     coverageOptions: ['Chocolate Negro', 'Chocolate Blanco']
   },
@@ -51,7 +51,7 @@ export const products = [
     flavor: 'Chocolate Naranja',
     description: '15g Proteína • Sin azúcar',
     price: 1900,
-    image: require('../../assets/barras.jpg'),
+    image: require('../../assets/barras-ilustacion.png'),
     category: 'Barras Proteicas',
     coverageOptions: ['Chocolate Negro', 'Chocolate Blanco']
   },
@@ -61,7 +61,7 @@ export const products = [
     flavor: 'Chocolate Cinnamon',
     description: '15g Proteína • Sin azúcar',
     price: 1900,
-    image: require('../../assets/barras.jpg'),
+    image: require('../../assets/barras-ilustacion.png'),
     category: 'Barras Proteicas',
     coverageOptions: ['Chocolate Negro', 'Chocolate Blanco']
   },
@@ -71,7 +71,7 @@ export const products = [
     flavor: 'Coco y Cacao',
     description: '12g Proteína • Sin azúcar',
     price: 1300,
-    image: require('../../assets/bombones.JPG'),
+    image: require('../../assets/bombones-ilustracion.png'),
     category: 'Bombones'
   },
   {
@@ -80,7 +80,7 @@ export const products = [
     flavor: 'Pistacho con Chocolate Blanco',
     description: '12g Proteína • Sin azúcar',
     price: 1350,
-    image: require('../../assets/bombones.JPG'),
+    image: require('../../assets/bombones-ilustracion.png'),
     category: 'Bombones'
   },
   {
@@ -89,7 +89,7 @@ export const products = [
     flavor: 'Almendra con Chocolate Blanco',
     description: '12g Proteína • Sin azúcar',
     price: 1350,
-    image: require('../../assets/bombones.JPG'),
+    image: require('../../assets/bombones-ilustracion.png'),
     category: 'Bombones'
   }
 ];

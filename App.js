@@ -5,7 +5,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import HomeScreen from './src/screens/HomeScreen';
 import CartScreen from './src/screens/CartScreen';
-import OrderTrackingScreen from './src/screens/OrderTrackingScreen';
 import ProductDetailScreen from './src/screens/ProductDetailScreen';
 import { CartProvider } from './src/context/CartContext';
 
@@ -38,11 +37,6 @@ export default function App() {
             name="ProductDetail" 
             component={ProductDetailScreen} 
             options={{ title: 'Detalle del producto' }} 
-          />
-          <Stack.Screen 
-            name="OrderTracking" 
-            component={OrderTrackingScreen} 
-            options={{ title: 'Mis Pedidos' }} 
           />
         </Stack.Navigator>
       </NavigationContainer>

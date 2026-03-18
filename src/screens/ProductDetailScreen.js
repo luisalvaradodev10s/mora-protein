@@ -31,7 +31,7 @@ export default function ProductDetailScreen({ route, navigation }) {
 
       <View style={styles.imageWrapper}>
         <Image
-          source={typeof product.image === 'number' ? product.image : { uri: product.image }}
+          source={product.image}
           style={styles.productImage}
           resizeMode="cover"
         />
