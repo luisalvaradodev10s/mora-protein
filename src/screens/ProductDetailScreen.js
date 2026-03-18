@@ -33,7 +33,7 @@ export default function ProductDetailScreen({ route, navigation }) {
         <Image
           source={product.image}
           style={styles.productImage}
-          resizeMode="contain"
+          resizeMode="cover"
         />
       </View>
 

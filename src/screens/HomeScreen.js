@@ -25,7 +25,7 @@ export default function HomeScreen({ navigation }) {
           <Image
             source={item.image}
             style={styles.productImage}
-            resizeMode="contain"
+            resizeMode="cover"
           />
           <View style={styles.overlay} />
         </View>
