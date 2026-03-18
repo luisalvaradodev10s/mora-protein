@@ -67,7 +67,7 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };  
 
@@ -77,7 +77,7 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <ImageBackground 
-      source={{ uri: 'https://images.unsplash.com/photo-1549007953-2f2dc0b24019?q=80&w=1080' }} // Textura chocolate/barra
+      source={require('../../assets/fondo.jpg')} // Textura chocolate/barra
       style={styles.backgroundImage}
       resizeMode="cover"
     >
