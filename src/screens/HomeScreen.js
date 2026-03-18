@@ -1,7 +1,8 @@
-import React, { useContext, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, ImageBackground, useWindowDimensions, Modal } from 'react-native';
+import React, { useContext, useEffect, useState, useRef } from 'react';
+import { Animated, Easing, View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, ImageBackground, useWindowDimensions, Modal } from 'react-native';
 import { products } from '../data/products';
-import { ShoppingCart, Instagram } from 'lucide-react-native';
+import { brands } from '../data/brands';
+import { ShoppingCart, Instagram, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { CartContext } from '../context/CartContext';
 
 export default function HomeScreen({ navigation }) {
@@ -17,6 +18,98 @@ export default function HomeScreen({ navigation }) {
   const { width } = useWindowDimensions();
   const scrollRef = useRef(null);
   const sectionPositions = useRef({});
+
+  const [brandIndex, setBrandIndex] = useState(0);
+  const autoPlayResumeRef = useRef(null);
+  const animationRef = useRef(null);
+  const currentOffsetRef = useRef(0);
+
+  const brandItemWidth = Math.min(240, width * 0.6);
+  const brandGap = 16;
+  const brandScrollWidth = (brandItemWidth + brandGap) * brands.length;
+
+  const scrollAnim = useRef(new Animated.Value(0)).current;
+
+  const runMarquee = () => {
+    if (animationRef.current) return;
+
+    const current = currentOffsetRef.current;
+    const end = -brandScrollWidth;
+    const remaining = end - current;
+    const duration = Math.max(4000, (Math.abs(remaining) / brandScrollWidth) * 8000);
+
+    animationRef.current = Animated.timing(scrollAnim, {
+      toValue: end,
+      duration,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    });
+
+    animationRef.current.start(({ finished }) => {
+      animationRef.current = null;
+      if (!finished) return;
+
+      scrollAnim.setValue(0);
+      currentOffsetRef.current = 0;
+      setBrandIndex(0);
+      runMarquee();
+    });
+  };
+
+  const pauseAutoPlay = () => {
+    if (animationRef.current) {
+      animationRef.current.stop();
+      animationRef.current = null;
+    }
+
+    if (autoPlayResumeRef.current) clearTimeout(autoPlayResumeRef.current);
+    autoPlayResumeRef.current = setTimeout(() => {
+      runMarquee();
+    }, 4500);
+  };
+
+  const goToBrand = (index) => {
+    pauseAutoPlay();
+    const target = -index * (brandItemWidth + brandGap);
+    Animated.timing(scrollAnim, {
+      toValue: target,
+      duration: 400,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: true,
+    }).start(() => {
+      currentOffsetRef.current = target;
+    });
+  };
+
+  const nextBrand = () => {
+    const nextIndex = (brandIndex + 1) % brands.length;
+    goToBrand(nextIndex);
+    setBrandIndex(nextIndex);
+  };
+
+  const prevBrand = () => {
+    const prevIndex = (brandIndex - 1 + brands.length) % brands.length;
+    goToBrand(prevIndex);
+    setBrandIndex(prevIndex);
+  };
+
+  useEffect(() => {
+    const listenerId = scrollAnim.addListener(({ value }) => {
+      currentOffsetRef.current = value;
+      const index = Math.round(Math.abs(value) / (brandItemWidth + brandGap)) % brands.length;
+      setBrandIndex(index);
+    });
+
+    return () => {
+      scrollAnim.removeListener(listenerId);
+      if (autoPlayResumeRef.current) clearTimeout(autoPlayResumeRef.current);
+      if (animationRef.current) animationRef.current.stop();
+    };
+  }, [brandItemWidth, brandGap]);
+
+  useEffect(() => {
+    runMarquee();
+  }, [brandScrollWidth]);
 
   const scrollToSection = (category) => {
     const y = sectionPositions.current[category];
@@ -35,17 +128,16 @@ export default function HomeScreen({ navigation }) {
 
   const displayedCategories = selectedCategory ? [selectedCategory] : categories;
 
-  // Hacer el diseño adaptable (responsive) con una lógica de columnas más robusta
-  let columns = 1;
-  if (width > 1200) columns = 4;
-  else if (width > 800) columns = 3;
-  else if (width > 500) columns = 2;
-
-  // Cálculo Dinámico de Espaciado
-  const outerPadding = 20;
-  const gap = 16;
-  const totalGapWidth = gap * (columns - 1);
-  const cardWidth = (width - (outerPadding * 2) - totalGapWidth) / columns;
+  // Configuración responsive para los cards del menú
+  const productsOuterPadding = 14;
+  const cardGap = 16;
+  const cardBasis = width > 1200
+    ? (width - productsOuterPadding * 2 - cardGap * 3) / 4
+    : width > 800
+    ? (width - productsOuterPadding * 2 - cardGap * 2) / 3
+    : width > 500
+    ? (width - productsOuterPadding * 2 - cardGap) / 2
+    : width - productsOuterPadding * 2;
 
   const renderProduct = (item) => {
     const coverage = selectedCoverage[item.id] || item.coverageOptions?.[0];
@@ -54,7 +146,7 @@ export default function HomeScreen({ navigation }) {
       <TouchableOpacity
         key={item.id}
         activeOpacity={0.8}
-        style={[styles.card, { width: cardWidth }]}
+        style={[styles.card, { flexBasis: cardBasis }]}
         onPress={() => {
           setSelectedProduct(item);
           setIsProductModalVisible(true);
@@ -195,6 +287,7 @@ export default function HomeScreen({ navigation }) {
                 </TouchableOpacity>
               ))}
             </ScrollView>
+
           </View>
 
           <ScrollView
@@ -203,8 +296,64 @@ export default function HomeScreen({ navigation }) {
             contentContainerStyle={styles.scrollContent}
           >
             <View style={styles.titleContainer}>
-              <Text style={styles.mainTitle}>Nuestro Menú</Text>
-              <Text style={styles.subtitle}>Descubre todos nuestros snacks separadas por categoría.</Text>
+              <Text style={styles.mainTitle}>
+                <Text style={styles.mainTitleLine}>Nuestro</Text>{"\n"}
+                <Text style={styles.mainTitleHighlight}>Menú</Text>
+              </Text>
+              <Text style={styles.subtitle}>Descubre todos nuestros snacks, separados por categoría.</Text>
+            </View>
+
+            <View style={styles.brandSection}>
+              <Text style={styles.brandTitle}>Marcas con las que trabajamos</Text>
+              <View
+                style={styles.brandCarouselWrapper}
+                onTouchStart={pauseAutoPlay}
+                onStartShouldSetResponder={() => true}
+              >
+                <Animated.View
+                  style={[
+                    styles.brandRow,
+                    {
+                      transform: [{ translateX: scrollAnim }],
+                    },
+                  ]}
+                >
+                  {[...brands, ...brands].map((brand, idx) => (
+                    <View
+                      key={`${brand.id}-${idx}`}
+                      style={[
+                        styles.brandCard,
+                        { width: brandItemWidth, marginRight: idx === brands.length * 2 - 1 ? 0 : brandGap },
+                      ]}
+                    >
+                      <Image source={brand.logo} style={styles.brandLogo} resizeMode="contain" />
+                      <Text style={styles.brandName}>{brand.name}</Text>
+                    </View>
+                  ))}
+                </Animated.View>
+
+                <TouchableOpacity
+                  style={[styles.brandNavButton, styles.brandNavButtonLeft]}
+                  onPress={prevBrand}
+                  activeOpacity={0.8}
+                >
+                  <ChevronLeft color="#FFF" size={20} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.brandNavButton, styles.brandNavButtonRight]}
+                  onPress={nextBrand}
+                  activeOpacity={0.8}
+                >
+                  <ChevronRight color="#FFF" size={20} />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.brandDots}>
+                {brands.map((_, idx) => (
+                  <View key={idx} style={[styles.brandDot, idx === brandIndex && styles.brandDotActive]} />
+                ))}
+              </View>
             </View>
 
             {displayedCategories.map((category) => {
@@ -411,7 +560,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(249, 248, 246, 0.2)', // Menos opacidad para mantener el fondo visible
   },
   header: {
-    paddingTop: 30,
+    paddingTop: 20,
     backgroundColor: 'transparent',
     borderBottomWidth: 0,
     zIndex: 10,
@@ -427,6 +576,93 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 15,
     gap: 10,
+  },
+  brandSection: {
+    marginTop: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 22,
+    marginHorizontal: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 15,
+    elevation: 4,
+  },
+  brandTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#1A1A1A',
+    marginBottom: 12,
+    letterSpacing: 0.5,
+  },
+  brandScrollContent: {
+    paddingBottom: 6,
+  },
+  brandCarouselWrapper: {
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  brandNavButton: {
+    position: 'absolute',
+    top: '45%',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  brandNavButtonLeft: {
+    left: 10,
+  },
+  brandNavButtonRight: {
+    right: 10,
+  },
+  brandCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  brandLogo: {
+    width: 60,
+    height: 60,
+    marginBottom: 10,
+  },
+  brandName: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#1A1A1A',
+    textAlign: 'center',
+  },
+  brandDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 10,
+  },
+  brandDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(26, 26, 26, 0.2)',
+  },
+  brandDotActive: {
+    backgroundColor: '#1A1A1A',
   },
   navButton: {
     backgroundColor: '#FFFFFF',
@@ -470,8 +706,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconButton: {
-    marginLeft: 20,
-    padding: 8,
+    marginLeft: 10,
+    padding: 4,
   },
   badgeContainer: {
     position: 'absolute',
@@ -516,23 +752,43 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   scrollContent: {
-    paddingTop: 140,
+    paddingTop: 16,
     paddingBottom: 60,
   },
   titleContainer: {
     marginHorizontal: 20,
     marginTop: 0,
-    marginBottom: 20,
+    marginBottom: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
+    elevation: 5,
+    alignItems: 'center',
   },
   mainTitle: {
     color: '#1A1A1A',
-    fontSize: 28,
+    fontSize: 34,
     fontWeight: '900',
-    marginBottom: 5,
+    lineHeight: 42,
+    textAlign: 'center',
+  },
+  mainTitleLine: {
+    letterSpacing: -0.5,
+  },
+  mainTitleHighlight: {
+    color: '#D7CFC2',
   },
   subtitle: {
-    color: '#666666',
+    color: '#555555',
     fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 18,
   },
   categorySection: {
     marginBottom: 40,
@@ -580,14 +836,15 @@ const styles = StyleSheet.create({
   productsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 20,
-    justifyContent: 'flex-start',
+    paddingHorizontal: 14,
+    justifyContent: 'space-between',
     gap: 16, // Usar gap para espaciado uniforme
   },
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    marginBottom: 10,
+    marginBottom: 20,
+    flexGrow: 1,
     shadowColor: '#4a3c2f',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.1,
@@ -744,7 +1001,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 20,
-    margin: 20,
+    margin: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
