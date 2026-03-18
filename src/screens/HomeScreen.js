@@ -1,5 +1,5 @@
 import React, { useContext, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, ImageBackground, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, ImageBackground, useWindowDimensions, Modal } from 'react-native';
 import { products } from '../data/products';
 import { ShoppingCart, Instagram } from 'lucide-react-native';
 import { CartContext } from '../context/CartContext';
@@ -8,6 +8,7 @@ export default function HomeScreen({ navigation }) {
   const { addToCart, getCartCount } = useContext(CartContext);
   const [selectedCoverage, setSelectedCoverage] = useState({});
   const [selectedQuantity, setSelectedQuantity] = useState({});
+  const [isAboutVisible, setIsAboutVisible] = useState(false);
   const { width } = useWindowDimensions();
   const scrollRef = useRef(null);
   const sectionPositions = useRef({});
@@ -140,7 +141,7 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.brandMora}>Mora<Text style={styles.brandProtein}>Protein</Text></Text>
               </View>
               <View style={styles.headerIcons}>
-                <TouchableOpacity onPress={() => navigation.navigate('About')} style={styles.aboutButton}>
+                <TouchableOpacity onPress={() => setIsAboutVisible(true)} style={styles.aboutButton}>
                   <Text style={styles.aboutButtonText}>Quiénes Somos</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={openInstagram} style={styles.iconButton}>
@@ -216,6 +217,32 @@ export default function HomeScreen({ navigation }) {
           </ScrollView>
         </View>
       </ImageBackground>
+
+      <Modal
+        visible={isAboutVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsAboutVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={() => setIsAboutVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Quiénes Somos</Text>
+            <Text style={styles.modalDescription}>
+              Mora Protein es una marca de snacks saludables{'\n'}
+              hechos a mano, sin azúcar, altos en proteína y con{'\n'}
+              opciones veganas.{'\n\n'}
+              Desarrollamos productos artesanales, naturales y{'\n'}
+              frescos, pensados para quienes buscan cuidarse{'\n'}
+              sin dejar de disfrutar. Nuestra propuesta combina{'\n'}
+              nutrición y sabor en formatos prácticos, accesibles{'\n'}
+              y fáciles de integrar al día a día.
+            </Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -547,5 +574,46 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '800',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    margin: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 10,
+    maxWidth: 400,
+    width: '90%',
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 5,
+  },
+  closeButtonText: {
+    fontSize: 24,
+    color: '#1A1A1A',
+    fontWeight: 'bold',
+  },
+  modalTitle: {
+    color: '#1A1A1A',
+    fontSize: 24,
+    fontWeight: '900',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  modalDescription: {
+    color: '#666666',
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: 'center',
   },
 });
