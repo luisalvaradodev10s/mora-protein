@@ -95,7 +95,7 @@ export default function CartScreen({ navigation }) {
     <ImageBackground 
       source={require('../../assets/logo-cuadrado.png')} // Logo cuadrado
       style={styles.backgroundImage}
-      resizeMode="contain"
+      resizeMode="cover"
     >
       <View style={styles.overlayContainer}>
         <Text style={styles.title}>Resumen de Compra</Text>

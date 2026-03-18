@@ -139,7 +139,7 @@ export default function HomeScreen({ navigation }) {
         source={require('../../assets/logo-cuadrado.png')}
         style={styles.backgroundImage}
         imageStyle={styles.imageOpacity}
-        resizeMode="contain"
+        resizeMode="cover"
       >
         <View style={styles.overlayContainer}>
           <View style={styles.header}>
