@@ -247,9 +247,6 @@ export default function HomeScreen({ navigation }) {
                 cliente.
               </Text>
 
-              <TouchableOpacity style={styles.workButton} onPress={() => setIsWorkModalVisible(true)}>
-                <Text style={styles.workButtonText}>Trabaja con Nosotros</Text>
-              </TouchableOpacity>
             </View>
           </ScrollView>
         </View>
@@ -411,13 +408,12 @@ const styles = StyleSheet.create({
   },
   overlayContainer: {
     flex: 1,
-    backgroundColor: 'rgba(249, 248, 246, 0.18)', // Menos opacidad para que el fondo se vea también en la parte superior
+    backgroundColor: 'rgba(249, 248, 246, 0.2)', // Menos opacidad para mantener el fondo visible
   },
   header: {
     paddingTop: 30,
-    backgroundColor: 'rgba(249, 248, 246, 0.65)',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(235, 235, 235, 0.5)',
+    backgroundColor: 'transparent',
+    borderBottomWidth: 0,
     zIndex: 10,
   },
   headerTop: {
@@ -520,11 +516,12 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingTop: 140,
+    paddingBottom: 60,
   },
   titleContainer: {
     marginHorizontal: 20,
-    marginTop: 15,
+    marginTop: 0,
     marginBottom: 20,
   },
   mainTitle: {
