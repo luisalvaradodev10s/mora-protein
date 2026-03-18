@@ -140,6 +140,9 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.brandMora}>Mora<Text style={styles.brandProtein}>Protein</Text></Text>
               </View>
               <View style={styles.headerIcons}>
+                <TouchableOpacity onPress={() => navigation.navigate('About')} style={styles.aboutButton}>
+                  <Text style={styles.aboutButtonText}>Quiénes Somos</Text>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={openInstagram} style={styles.iconButton}>
                   <Instagram color="#1A1A1A" size={24} />
                 </TouchableOpacity>
@@ -313,6 +316,19 @@ const styles = StyleSheet.create({
     color: '#D7CFC2',
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  aboutButton: {
+    marginRight: 15,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#D7CFC2',
+    borderRadius: 16,
+  },
+  aboutButtonText: {
+    color: '#1A1A1A',
+    fontSize: 12,
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
   scrollContent: {
     paddingBottom: 40,

@@ -18,6 +18,7 @@ export default function ProductDetailScreen({ route, navigation }) {
   };
 
   const addProduct = () => {
+    animateAddButton();
     const options = product.coverageOptions?.length ? { coverage } : {};
     addToCart(product, options, quantity);
     alert(`Agregado al carrito: ${quantity} x ${product.name}${coverage ? ` (${coverage})` : ''}`);
@@ -35,6 +36,9 @@ export default function ProductDetailScreen({ route, navigation }) {
           style={styles.productImage}
           resizeMode="cover"
         />
+        <View style={styles.priceBadge}>
+          <Text style={styles.priceBadgeText}>${product.price}</Text>
+        </View>
       </View>
 
       <View style={styles.productInfo}>
@@ -42,7 +46,6 @@ export default function ProductDetailScreen({ route, navigation }) {
         <Text style={styles.title}>{product.name}</Text>
         <Text style={styles.flavor}>{product.flavor || ''}</Text>
         <Text style={styles.description}>{product.description}</Text>
-        <Text style={styles.price}>${product.price}</Text>
 
         {product.coverageOptions?.length > 0 && (
           <View style={styles.coverageSection}>
@@ -71,10 +74,12 @@ export default function ProductDetailScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.addButton} onPress={addProduct}>
-          <ShoppingCart color="#fff" size={18} />
-          <Text style={styles.addButtonText}>Agregar {quantity} al carrito</Text>
-        </TouchableOpacity>
+        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+          <TouchableOpacity style={styles.addButton} onPress={addProduct}>
+            <ShoppingCart color="#fff" size={18} />
+            <Text style={styles.addButtonText}>Agregar {quantity} al carrito</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     </ScrollView>
   );
@@ -98,50 +103,74 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   imageWrapper: {
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
-    backgroundColor: '#EFEFEF',
+    backgroundColor: '#F7F7F7',
     marginVertical: 8,
+    position: 'relative',
   },
   productImage: {
     width: '100%',
-    height: 220,
+    height: 300,
+  },
+  priceBadge: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    backgroundColor: 'rgba(26, 26, 26, 0.85)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backdropFilter: 'blur(4px)',
+  },
+  priceBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
   },
   productInfo: {
-    marginTop: 12,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    marginTop: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#4a3c2f',
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 15,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(215, 207, 194, 0.3)',
   },
   category: {
-    color: '#4a3c2f',
-    fontWeight: '700',
-    fontSize: 12,
-    marginBottom: 4,
+    backgroundColor: '#F0E6D7',
+    color: '#4A3C2F',
+    fontSize: 10,
+    fontWeight: '800',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
   },
   title: {
     color: '#1A1A1A',
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '900',
-    marginBottom: 4,
+    marginBottom: 6,
+    letterSpacing: -0.5,
   },
   flavor: {
     color: '#6b7280',
-    fontSize: 14,
-    marginBottom: 10,
+    fontSize: 16,
+    marginBottom: 12,
   },
   description: {
-    color: '#4b4b4b',
+    color: '#666666',
     fontSize: 14,
-    marginBottom: 12,
     lineHeight: 20,
+    marginBottom: 16,
   },
   price: {
     color: '#1A1A1A',
@@ -150,78 +179,75 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   coverageSection: {
-    marginBottom: 14,
+    marginBottom: 16,
   },
   coverageTitle: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#4a4a4a',
+    fontSize: 11,
+    color: '#999',
+    fontWeight: '700',
     marginBottom: 6,
     textTransform: 'uppercase',
-    letterSpacing: 0.4,
   },
   coverageRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: 8,
   },
   coverageOption: {
-    borderWidth: 1,
-    borderColor: '#C4B9A5',
-    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#E8E2D9',
+    backgroundColor: '#FDFDFD',
+    borderRadius: 12,
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    paddingHorizontal: 10,
-    marginRight: 8,
-    marginBottom: 8,
   },
   coverageOptionSelected: {
     backgroundColor: '#1A1A1A',
     borderColor: '#1A1A1A',
   },
   coverageOptionText: {
-    fontSize: 12,
-    color: '#4a4a4a',
+    fontSize: 11,
     fontWeight: '700',
   },
   coverageOptionTextSelected: {
-    color: '#fff',
+    color: '#FFF',
   },
   quantityRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 16,
   },
   qtyBtn: {
-    borderRadius: 8,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#C4B9A5',
-    marginHorizontal: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#E8E2D9',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   qtyBtnText: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: 'bold',
     color: '#1A1A1A',
   },
   qtyText: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: 'bold',
     color: '#1A1A1A',
-    minWidth: 28,
-    textAlign: 'center',
+    marginHorizontal: 16,
   },
   addButton: {
+    backgroundColor: '#1A1A1A',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    paddingVertical: 14,
+    borderRadius: 16,
+    gap: 8,
   },
   addButtonText: {
-    color: '#fff',
-    marginLeft: 8,
-    fontSize: 14,
-    fontWeight: '700',
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
   },
 });
