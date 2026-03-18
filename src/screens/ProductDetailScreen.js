@@ -19,8 +19,8 @@ export default function ProductDetailScreen({ route, navigation }) {
 
   const addProduct = () => {
     const options = product.coverageOptions?.length ? { coverage } : {};
-    addToCart(product, options);
-    alert(`Agregado al carrito: ${product.name}${coverage ? ` (${coverage})` : ''}`);
+    addToCart(product, options, quantity);
+    alert(`Agregado al carrito: ${quantity} x ${product.name}${coverage ? ` (${coverage})` : ''}`);
   };
 
   return (
@@ -71,9 +71,7 @@ export default function ProductDetailScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.addButton} onPress={() => {
-          for (let i = 0; i < quantity; i++) addProduct();
-        }}>
+        <TouchableOpacity style={styles.addButton} onPress={addProduct}>
           <ShoppingCart color="#fff" size={18} />
           <Text style={styles.addButtonText}>Agregar {quantity} al carrito</Text>
         </TouchableOpacity>
