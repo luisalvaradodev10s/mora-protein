@@ -12,6 +12,7 @@ export default function HomeScreen({ navigation }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductModalVisible, setIsProductModalVisible] = useState(false);
   const [modalQuantity, setModalQuantity] = useState(1);
+  const [isWorkModalVisible, setIsWorkModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const { width } = useWindowDimensions();
   const scrollRef = useRef(null);
@@ -136,6 +137,12 @@ export default function HomeScreen({ navigation }) {
     Linking.openURL('https://www.instagram.com/mora.protein');
   };
 
+  const openWhatsApp = () => {
+    const phone = '+56954099576';
+    const message = encodeURIComponent('Hola Mora Protein, me gustaría trabajar con ustedes.');
+    Linking.openURL(`https://wa.me/${phone.replace(/\D/g, '')}?text=${message}`);
+  };
+
   return (
     <View style={styles.mainContainer}>
       <ImageBackground
@@ -151,6 +158,9 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.brandMora}>Mora<Text style={styles.brandProtein}>Protein</Text></Text>
               </View>
               <View style={styles.headerIcons}>
+                <TouchableOpacity onPress={() => setIsWorkModalVisible(true)} style={[styles.aboutButton, styles.workHeaderButton]}>
+                  <Text style={styles.workHeaderButtonText}>Trabaja con Nosotros</Text>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={() => setIsAboutVisible(true)} style={styles.aboutButton}>
                   <Text style={styles.aboutButtonText}>Quiénes Somos</Text>
                 </TouchableOpacity>
@@ -221,6 +231,26 @@ export default function HomeScreen({ navigation }) {
                 </View>
               );
             })}
+
+            <View style={styles.footerContainer}>
+              <Text style={styles.footerTitle}>LA PROPUESTA</Text>
+              <Text style={styles.footerText}>
+                Incorporar Mora Protein en su vitrina permite sumar una
+                alternativa saludable que dialoga de forma natural con el mundo
+                del chocolate y el café. Es una propuesta que eleva la oferta
+                saludable del local y ofrece una alternativa real frente a las barras
+                industriales.
+
+                Mora Protein es una propuesta versátil, pensada para acompañar
+                distintos momentos del día —el café de la mañana, el post-entreno
+                o la pausa de media tarde— aportando valor a la experiencia del
+                cliente.
+              </Text>
+
+              <TouchableOpacity style={styles.workButton} onPress={() => setIsWorkModalVisible(true)}>
+                <Text style={styles.workButtonText}>Trabaja con Nosotros</Text>
+              </TouchableOpacity>
+            </View>
           </ScrollView>
         </View>
       </ImageBackground>
@@ -334,6 +364,34 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
       </Modal>
+
+      <Modal
+        visible={isWorkModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsWorkModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.workModalContent}>
+            <TouchableOpacity onPress={() => setIsWorkModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
+            <Image
+              source={require('../../assets/logo-cuadrado.png')}
+              style={styles.workModalImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.workModalTitle}>Trabaja con Nosotros</Text>
+            <Text style={styles.workModalText}>
+              ¿Te interesa sumar Mora Protein a tu oferta? Escríbenos y conversemos sobre
+              cómo podemos colaborar.
+            </Text>
+            <TouchableOpacity style={styles.workModalButton} onPress={openWhatsApp}>
+              <Text style={styles.workModalButtonText}>Enviar WhatsApp</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -442,8 +500,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#D7CFC2',
     borderRadius: 16,
   },
+  workHeaderButton: {
+    marginRight: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#1A1A1A',
+    borderRadius: 16,
+  },
   aboutButtonText: {
     color: '#1A1A1A',
+    fontSize: 12,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  workHeaderButtonText: {
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '800',
     textTransform: 'uppercase',
@@ -878,6 +949,85 @@ const styles = StyleSheet.create({
   },
   modalViewDetailsText: {
     color: '#1A1A1A',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  footerContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 20,
+    padding: 20,
+    marginHorizontal: 20,
+    marginBottom: 40,
+    borderWidth: 1,
+    borderColor: 'rgba(215, 207, 194, 0.6)',
+  },
+  footerTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#1A1A1A',
+    marginBottom: 12,
+    letterSpacing: 1,
+  },
+  footerText: {
+    fontSize: 14,
+    color: '#4a4a4a',
+    lineHeight: 22,
+  },
+  workButton: {
+    marginTop: 18,
+    backgroundColor: '#1A1A1A',
+    paddingVertical: 12,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  workButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  workModalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    margin: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 10,
+    maxWidth: 400,
+    width: '90%',
+    padding: 20,
+    alignItems: 'center',
+  },
+  workModalImage: {
+    width: 160,
+    height: 160,
+    marginBottom: 16,
+  },
+  workModalTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#1A1A1A',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  workModalText: {
+    fontSize: 14,
+    color: '#4a4a4a',
+    lineHeight: 20,
+    textAlign: 'center',
+    marginBottom: 18,
+  },
+  workModalButton: {
+    backgroundColor: '#1A1A1A',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    width: '100%',
+    alignItems: 'center',
+  },
+  workModalButtonText: {
+    color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '800',
   },
