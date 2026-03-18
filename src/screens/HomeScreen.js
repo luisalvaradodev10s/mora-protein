@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(249, 248, 246, 0.4)', // Velo crema claro para no perder la lectura de las tarjetas
   },
   header: {
-    paddingTop: 50,
+    paddingTop: 30,
     backgroundColor: 'rgba(249, 248, 246, 0.95)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(235, 235, 235, 0.5)',
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     marginHorizontal: 20,
-    marginTop: 25,
+    marginTop: 15,
     marginBottom: 20,
   },
   mainTitle: {
