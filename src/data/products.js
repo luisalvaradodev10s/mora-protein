@@ -71,7 +71,7 @@ export const products = [
     flavor: 'Coco y Cacao',
     description: '12g Proteína • Sin azúcar',
     price: 1300,
-    image: require('../../assets/bombones-ilustracion.png'),
+    image: require('../../assets/bombones.JPG'),
     category: 'Bombones'
   },
   {
@@ -80,7 +80,7 @@ export const products = [
     flavor: 'Pistacho con Chocolate Blanco',
     description: '12g Proteína • Sin azúcar',
     price: 1350,
-    image: require('../../assets/bombones-ilustracion.png'),
+    image: require('../../assets/bombones.JPG'),
     category: 'Bombones'
   },
   {
@@ -89,7 +89,7 @@ export const products = [
     flavor: 'Almendra con Chocolate Blanco',
     description: '12g Proteína • Sin azúcar',
     price: 1350,
-    image: require('../../assets/bombones-ilustracion.png'),
+    image: require('../../assets/bombones.JPG'),
     category: 'Bombones'
   }
 ];
