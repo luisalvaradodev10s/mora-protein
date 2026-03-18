@@ -11,6 +11,7 @@ export default function HomeScreen({ navigation }) {
   const [isAboutVisible, setIsAboutVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductModalVisible, setIsProductModalVisible] = useState(false);
+  const [modalQuantity, setModalQuantity] = useState(1);
   const { width } = useWindowDimensions();
   const scrollRef = useRef(null);
   const sectionPositions = useRef({});
@@ -53,6 +54,7 @@ export default function HomeScreen({ navigation }) {
         onPress={() => {
           setSelectedProduct(item);
           setIsProductModalVisible(true);
+          setModalQuantity(1);
         }}
       >
         <View style={styles.imageContainer}>
@@ -273,15 +275,59 @@ export default function HomeScreen({ navigation }) {
                   <Text style={styles.modalProductFlavor}>{selectedProduct.flavor || ''}</Text>
                   <Text style={styles.modalProductDescription}>{selectedProduct.description}</Text>
                   <Text style={styles.modalProductPrice}>${selectedProduct.price}</Text>
-                  <TouchableOpacity
-                    style={styles.modalViewDetailsButton}
-                    onPress={() => {
-                      setIsProductModalVisible(false);
-                      navigation.navigate('ProductDetail', { product: selectedProduct });
-                    }}
-                  >
-                    <Text style={styles.modalViewDetailsText}>Ver Detalles</Text>
-                  </TouchableOpacity>
+
+                  {selectedProduct.coverageOptions?.length > 0 && (
+                    <View style={styles.modalCoverageSection}>
+                      <Text style={styles.modalCoverageTitle}>Cobertura</Text>
+                      <View style={styles.modalCoverageRow}>
+                        {selectedProduct.coverageOptions.map(option => (
+                          <TouchableOpacity
+                            key={`${selectedProduct.id}-${option}`}
+                            style={[styles.modalCoverageOption, selectedProduct.coverage === option && styles.modalCoverageSelected]}
+                            onPress={() => setSelectedProduct(prev => ({ ...prev, coverage: option }))}
+                          >
+                            <Text style={[styles.modalCoverageText, selectedProduct.coverage === option && styles.modalCoverageSelectedText]}>
+                              {option === 'Chocolate Negro' ? 'Negro' : option === 'Chocolate Blanco' ? 'Blanco' : option}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  <View style={styles.modalQuantityRow}>
+                    <TouchableOpacity style={styles.modalQtyBtn} onPress={() => setModalQuantity(prev => Math.max(1, prev - 1))}>
+                      <Text style={styles.modalQtyBtnText}>−</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.modalQtyText}>{modalQuantity}</Text>
+                    <TouchableOpacity style={styles.modalQtyBtn} onPress={() => setModalQuantity(prev => prev + 1)}>
+                      <Text style={styles.modalQtyBtnText}>+</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={styles.modalButtonsRow}>
+                    <TouchableOpacity
+                      style={styles.modalAddToCartButton}
+                      onPress={() => {
+                        const options = selectedProduct.coverageOptions?.length ? { coverage: selectedProduct.coverage } : {};
+                        addToCart(selectedProduct, options, modalQuantity);
+                        alert(`Agregado: ${modalQuantity} x ${selectedProduct.name}${selectedProduct.coverage ? ` (${selectedProduct.coverage})` : ''}`);
+                        setIsProductModalVisible(false);
+                      }}
+                    >
+                      <ShoppingCart color="#fff" size={16} />
+                      <Text style={styles.modalAddToCartText}>Agregar {modalQuantity}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.modalViewDetailsButton}
+                      onPress={() => {
+                        setIsProductModalVisible(false);
+                        navigation.navigate('ProductDetail', { product: selectedProduct });
+                      }}
+                    >
+                      <Text style={styles.modalViewDetailsText}>Ver Detalles</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </>
             )}
@@ -719,15 +765,95 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     marginBottom: 16,
   },
-  modalViewDetailsButton: {
+  modalCoverageSection: {
+    marginBottom: 16,
+  },
+  modalCoverageTitle: {
+    fontSize: 11,
+    color: '#999',
+    fontWeight: '700',
+    marginBottom: 6,
+    textTransform: 'uppercase',
+  },
+  modalCoverageRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  modalCoverageOption: {
+    borderWidth: 1.5,
+    borderColor: '#E8E2D9',
+    backgroundColor: '#FDFDFD',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  modalCoverageSelected: {
     backgroundColor: '#1A1A1A',
+    borderColor: '#1A1A1A',
+  },
+  modalCoverageText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#666',
+  },
+  modalCoverageSelectedText: {
+    color: '#FFF',
+  },
+  modalQuantityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    justifyContent: 'center',
+  },
+  modalQtyBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#E8E2D9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalQtyBtnText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+  },
+  modalQtyText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginHorizontal: 16,
+  },
+  modalButtonsRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  modalAddToCartButton: {
+    flex: 1,
+    backgroundColor: '#1A1A1A',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 16,
+    gap: 8,
+  },
+  modalAddToCartText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  modalViewDetailsButton: {
+    flex: 1,
+    backgroundColor: '#F0E6D7',
     paddingVertical: 12,
     borderRadius: 16,
     alignItems: 'center',
   },
   modalViewDetailsText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+    color: '#1A1A1A',
+    fontSize: 14,
     fontWeight: '800',
   },
 });
