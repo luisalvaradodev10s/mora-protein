@@ -12,6 +12,7 @@ export default function HomeScreen({ navigation }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductModalVisible, setIsProductModalVisible] = useState(false);
   const [modalQuantity, setModalQuantity] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const { width } = useWindowDimensions();
   const scrollRef = useRef(null);
   const sectionPositions = useRef({});
@@ -30,6 +31,8 @@ export default function HomeScreen({ navigation }) {
     if (b === 'Barras Proteicas') return 1;
     return a.localeCompare(b);
   });
+
+  const displayedCategories = selectedCategory ? [selectedCategory] : categories;
 
   // Hacer el diseño adaptable (responsive) con una lógica de columnas más robusta
   let columns = 1;
@@ -176,7 +179,7 @@ export default function HomeScreen({ navigation }) {
                 <TouchableOpacity 
                   key={`nav-${cat}`} 
                   style={styles.navButton}
-                  onPress={() => scrollToSection(cat)}
+                  onPress={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
                 >
                   <Text style={styles.navButtonText}>{cat}</Text>
                 </TouchableOpacity>
@@ -194,7 +197,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.subtitle}>Descubre todos nuestros snacks separadas por categoría.</Text>
             </View>
 
-            {categories.map((category) => {
+            {displayedCategories.map((category) => {
               const categoryProducts = products.filter(p => p.category === category);
               return (
                 <View 
@@ -208,9 +211,6 @@ export default function HomeScreen({ navigation }) {
                   <View style={styles.categoryHeader}>
                     <View style={styles.categoryTitleContainer}>
                       <Text style={styles.categoryTitle}>{category}</Text>
-                      <View style={styles.categoryBadge}>
-                        <Text style={styles.categoryBadgeText}>{categoryProducts.length}</Text>
-                      </View>
                     </View>
                     <View style={styles.categoryLine} />
                   </View>
