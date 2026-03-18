@@ -7,6 +7,7 @@ import { CartContext } from '../context/CartContext';
 export default function HomeScreen({ navigation }) {
   const { addToCart, getCartCount } = useContext(CartContext);
   const [selectedCoverage, setSelectedCoverage] = useState({});
+  const [selectedQuantity, setSelectedQuantity] = useState({});
   const { width } = useWindowDimensions();
   const scrollRef = useRef(null);
   const sectionPositions = useRef({});
@@ -86,12 +87,30 @@ export default function HomeScreen({ navigation }) {
             </View>
           )}
 
+          <View style={styles.quantityContainer}>
+            <Text style={styles.quantityLabel}>Cantidad:</Text>
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={() => setSelectedQuantity(prev => ({ ...prev, [item.id]: Math.max(1, (prev[item.id] || 1) - 1) }))}
+            >
+              <Text style={styles.quantityButtonText}>-</Text>
+            </TouchableOpacity>
+            <Text style={styles.quantityText}>{selectedQuantity[item.id] || 1}</Text>
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={() => setSelectedQuantity(prev => ({ ...prev, [item.id]: (prev[item.id] || 1) + 1 }))}
+            >
+              <Text style={styles.quantityButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
+
           <TouchableOpacity
             style={styles.addToCartButton}
             onPress={() => {
               const options = item.coverageOptions?.length ? { coverage } : {};
-              addToCart(item, options);
-              alert(`Agregado: ${item.name}${coverage ? ` (${coverage})` : ''}`);
+              const qty = selectedQuantity[item.id] || 1;
+              addToCart(item, options, qty);
+              alert(`Agregado: ${qty} x ${item.name}${coverage ? ` (${coverage})` : ''}`);
             }}
           >
             <ShoppingCart color="#fff" size={16} />
@@ -112,7 +131,7 @@ export default function HomeScreen({ navigation }) {
         source={require('../../assets/barras-fondo-snacks.png')}
         style={styles.backgroundImage}
         imageStyle={styles.imageOpacity}
-        resizeMode="cover"
+        resizeMode="contain"
       >
         <View style={styles.overlayContainer}>
           <View style={styles.header}>
@@ -467,6 +486,37 @@ const styles = StyleSheet.create({
   },
   coverageTextSelected: {
     color: '#FFF',
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  quantityLabel: {
+    fontSize: 11,
+    color: '#999',
+    fontWeight: '700',
+    marginRight: 10,
+    textTransform: 'uppercase',
+  },
+  quantityButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#E8E2D9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quantityButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+  },
+  quantityText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginHorizontal: 15,
   },
   addToCartButton: {
     backgroundColor: '#1A1A1A',
