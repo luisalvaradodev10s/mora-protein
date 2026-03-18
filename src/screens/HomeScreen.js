@@ -411,11 +411,11 @@ const styles = StyleSheet.create({
   },
   overlayContainer: {
     flex: 1,
-    backgroundColor: 'rgba(249, 248, 246, 0.4)', // Velo crema claro para no perder la lectura de las tarjetas
+    backgroundColor: 'rgba(249, 248, 246, 0.18)', // Menos opacidad para que el fondo se vea también en la parte superior
   },
   header: {
     paddingTop: 30,
-    backgroundColor: 'rgba(249, 248, 246, 0.95)',
+    backgroundColor: 'rgba(249, 248, 246, 0.65)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(235, 235, 235, 0.5)',
     zIndex: 10,
