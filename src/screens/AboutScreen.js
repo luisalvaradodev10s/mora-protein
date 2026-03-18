@@ -11,23 +11,14 @@ export default function AboutScreen({ navigation }) {
       <View style={styles.aboutContainer}>
         <Text style={styles.title}>Quiénes Somos</Text>
         <Text style={styles.description}>
-          Mora Protein es una empresa dedicada a ofrecer productos proteicos de alta calidad,
-          elaborados con ingredientes naturales y sin conservantes artificiales.
-          Nuestro compromiso es promover un estilo de vida saludable a través de snacks
-          deliciosos y nutritivos.
-        </Text>
-        <Text style={styles.description}>
-          Fundada en [Año], Mora Protein nació de la pasión por la nutrición y el bienestar.
-          Creemos que una alimentación balanceada es la base de una vida plena, y por eso
-          nos esforzamos en crear productos que no solo sean sabrosos, sino también beneficiosos
-          para tu salud.
-        </Text>
-        <Text style={styles.description}>
-          Nuestros valores:
-          - Calidad en cada producto
-          - Innovación constante
-          - Compromiso con la salud
-          - Sostenibilidad ambiental
+          Mora Protein es una marca de snacks saludables{'\n'}
+          hechos a mano, sin azúcar, altos en proteína y con{'\n'}
+          opciones veganas.{'\n\n'}
+          Desarrollamos productos artesanales, naturales y{'\n'}
+          frescos, pensados para quienes buscan cuidarse{'\n'}
+          sin dejar de disfrutar. Nuestra propuesta combina{'\n'}
+          nutrición y sabor en formatos prácticos, accesibles{'\n'}
+          y fáciles de integrar al día a día.
         </Text>
       </View>
     </ScrollView>
