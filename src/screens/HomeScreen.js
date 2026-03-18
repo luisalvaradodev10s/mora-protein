@@ -136,7 +136,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.mainContainer}>
       <ImageBackground
-        source={require('../../assets/barras-fondo-snacks.png')}
+        source={require('../../assets/logo-cuadrado.png')}
         style={styles.backgroundImage}
         imageStyle={styles.imageOpacity}
         resizeMode="contain"
@@ -263,7 +263,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
             {selectedProduct && (
-              <>
+              <ScrollView contentContainerStyle={styles.modalScrollContent}>
                 <Image
                   source={selectedProduct.image}
                   style={styles.modalProductImage}
@@ -329,7 +329,7 @@ export default function HomeScreen({ navigation }) {
                     </TouchableOpacity>
                   </View>
                 </View>
-              </>
+              </ScrollView>
             )}
           </View>
         </View>
@@ -685,13 +685,35 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     width: '90%',
   },
+  productModalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    margin: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 10,
+    maxWidth: 400,
+    width: '90%',
+    maxHeight: '90%',
+    position: 'relative',
+  },
   closeButton: {
-    alignSelf: 'flex-end',
-    padding: 5,
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   closeButtonText: {
-    fontSize: 24,
-    color: '#1A1A1A',
+    fontSize: 18,
+    color: '#FFFFFF',
     fontWeight: 'bold',
   },
   modalTitle: {
@@ -718,7 +740,10 @@ const styles = StyleSheet.create({
     elevation: 10,
     maxWidth: 400,
     width: '90%',
-    maxHeight: '80%',
+    maxHeight: '90%',
+  },
+  modalScrollContent: {
+    flexGrow: 1,
   },
   modalProductImage: {
     width: '100%',
