@@ -280,8 +280,13 @@ export default function HomeScreen({ navigation }) {
       >
         <View style={styles.overlayContainer}>
           <View style={styles.headerTop}>
-            <View style={styles.logoContainer}>
-              <Image source={require('../../assets/logo-circular.png')} style={styles.headerLogo} resizeMode="contain" />
+            <View style={styles.headerLeft}>
+              <View style={styles.logoContainer}>
+                <Image source={require('../../assets/logo-circular.png')} style={styles.headerLogo} resizeMode="contain" />
+              </View>
+              <TouchableOpacity style={styles.headerCTA} onPress={() => toggleCategoryMenu(true)}>
+                <Text style={styles.headerCTAText}>VER PRODUCTOS</Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.navLinks}>
               <TouchableOpacity onPress={() => setIsAboutVisible(true)}><Text style={styles.navLinkText}>QUIÉNES SOMOS</Text></TouchableOpacity>
@@ -308,12 +313,6 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.heroSection}>
               <Text style={styles.heroTitle}>Snacks de proteína{"\n"}100% naturales</Text>
               <Text style={styles.heroSubtitle}>Deliciosas. Nutritivas. Sin azúcar.</Text>
-              <TouchableOpacity
-                style={styles.heroCTA}
-                onPress={() => toggleCategoryMenu(true)}
-              >
-                <Text style={styles.heroCTAText}>Ver productos</Text>
-              </TouchableOpacity>
             </View>
 
 
@@ -730,6 +729,24 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     backgroundColor: 'rgba(0,0,0,0.5)',
     zIndex: 100,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
+  headerCTA: {
+    backgroundColor: '#D2B48C',
+    borderRadius: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginLeft: 10,
+  },
+  headerCTAText: {
+    color: '#121212',
+    fontSize: 13,
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
   headerLogo: {
     width: 60,
