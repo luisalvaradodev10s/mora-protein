@@ -2,11 +2,12 @@ import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Animated, Easing, View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Linking, ImageBackground, useWindowDimensions, Modal } from 'react-native';
 import { products } from '../data/products';
 import { brands } from '../data/brands';
-import { ShoppingCart, Instagram, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ShoppingCart, Instagram, ChevronLeft, ChevronRight, X, Minus, Plus, Trash2 } from 'lucide-react-native';
+import WhatsAppCartIcon from '../components/WhatsAppCartIcon';
 import { CartContext } from '../context/CartContext';
 
 export default function HomeScreen({ navigation }) {
-  const { addToCart, getCartCount } = useContext(CartContext);
+  const { cart, addToCart, incrementQuantity, decrementQuantity, removeItem, getCartCount } = useContext(CartContext);
   const [selectedCoverage, setSelectedCoverage] = useState({});
   const [selectedQuantity, setSelectedQuantity] = useState({});
   const [isAboutVisible, setIsAboutVisible] = useState(false);
@@ -14,8 +15,12 @@ export default function HomeScreen({ navigation }) {
   const [isProductModalVisible, setIsProductModalVisible] = useState(false);
   const [modalQuantity, setModalQuantity] = useState(1);
   const [isWorkModalVisible, setIsWorkModalVisible] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const { width } = useWindowDimensions();
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isCartDrawerVisible, setIsCartDrawerVisible] = useState(false);
+  const [isCategoryMenuVisible, setIsCategoryMenuVisible] = useState(false);
+  const cartAnim = useRef(new Animated.Value(width)).current;
+  const categoryMenuAnim = useRef(new Animated.Value(-100)).current;
   const scrollRef = useRef(null);
   const sectionPositions = useRef({});
 
@@ -111,6 +116,29 @@ export default function HomeScreen({ navigation }) {
     runMarquee();
   }, [brandScrollWidth]);
 
+  const toggleCartDrawer = (visible) => {
+    if (visible) setIsCartDrawerVisible(true);
+    Animated.timing(cartAnim, {
+      toValue: visible ? 0 : width,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      if (!visible) setIsCartDrawerVisible(false);
+    });
+  };
+
+  const toggleCategoryMenu = (visible) => {
+    if (visible) setIsCategoryMenuVisible(true);
+    Animated.timing(categoryMenuAnim, {
+      toValue: visible ? 0 : -120,
+      duration: visible ? 300 : 200,
+      easing: visible ? Easing.out(Easing.quad) : Easing.in(Easing.quad),
+      useNativeDriver: true,
+    }).start(() => {
+      if (!visible) setIsCategoryMenuVisible(false);
+    });
+  };
+
   const scrollToSection = (category) => {
     const y = sectionPositions.current[category];
     if (y !== undefined) {
@@ -161,7 +189,7 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.cardHeader}>
             <Text style={styles.categoryTag}>{item.category}</Text>
           </View>
-          
+
           <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
           <Text style={styles.productDescription} numberOfLines={2}>{item.description}</Text>
 
@@ -228,6 +256,20 @@ export default function HomeScreen({ navigation }) {
     Linking.openURL(`https://wa.me/${phone.replace(/\D/g, '')}?text=${message}`);
   };
 
+  const handleCheckout = () => {
+    const phone = '+56954099576';
+    let message = 'Hola Mora Protein! Me gustaría realizar el siguiente pedido:\n\n';
+    
+    cart.forEach(item => {
+      message += `• ${item.quantity}x ${item.name}${item.coverage ? ` (${item.coverage})` : ''} - $${item.price * item.quantity}\n`;
+    });
+    
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    message += `\n*Total: $${total}*`;
+    
+    Linking.openURL(`https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`);
+  };
+
   return (
     <View style={styles.mainContainer}>
       <ImageBackground
@@ -242,21 +284,20 @@ export default function HomeScreen({ navigation }) {
               <Image source={require('../../assets/logo-circular.png')} style={styles.headerLogo} resizeMode="contain" />
             </View>
             <View style={styles.navLinks}>
-              <TouchableOpacity onPress={() => scrollToSection('Inicio')}><Text style={styles.navLinkText}>Inicio</Text></TouchableOpacity>
-              <TouchableOpacity onPress={() => setIsAboutVisible(true)}><Text style={styles.navLinkText}>Nosotros</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => setIsAboutVisible(true)}><Text style={styles.navLinkText}>QUIÉNES SOMOS</Text></TouchableOpacity>
               <TouchableOpacity onPress={openWhatsApp}><Text style={styles.navLinkText}>Contacto</Text></TouchableOpacity>
               <TouchableOpacity onPress={openInstagram} style={styles.iconLink}>
-                <Instagram color="#FFFFFF" size={20} />
+                <Instagram color="#D2B48C" size={20} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => toggleCartDrawer(true)} style={styles.buyButton}>
+                <WhatsAppCartIcon size={32} />
+                {getCartCount() > 0 && (
+                  <View style={styles.badgeContainer}>
+                    <Text style={styles.badgeText}>{getCartCount()}</Text>
+                  </View>
+                )}
               </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={styles.buyButton}>
-              <ShoppingCart color="#FFFFFF" size={20} />
-              {getCartCount() > 0 && (
-                <View style={styles.badgeContainer}>
-                  <Text style={styles.badgeText}>{getCartCount()}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
           </View>
 
           <ScrollView
@@ -267,39 +308,16 @@ export default function HomeScreen({ navigation }) {
             <View style={styles.heroSection}>
               <Text style={styles.heroTitle}>Snacks de proteína{"\n"}100% naturales</Text>
               <Text style={styles.heroSubtitle}>Deliciosas. Nutritivas. Sin azúcar.</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.heroCTA}
-                onPress={() => scrollToSection(categories[0])}
+                onPress={() => toggleCategoryMenu(true)}
               >
                 <Text style={styles.heroCTAText}>Ver productos</Text>
               </TouchableOpacity>
             </View>
 
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categoryNav}
-            >
-              <TouchableOpacity 
-                style={[styles.navButton, !selectedCategory && styles.navButtonActive]}
-                onPress={() => setSelectedCategory(null)}
-              >
-                <Text style={[styles.navButtonText, !selectedCategory && styles.navButtonTextActive]}>Ver Todos</Text>
-              </TouchableOpacity>
-              {categories.map(cat => (
-                <TouchableOpacity 
-                  key={`nav-${cat}`} 
-                  style={[styles.navButton, selectedCategory === cat && styles.navButtonActive]}
-                  onPress={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
-                >
-                  <Text style={[styles.navButtonText, selectedCategory === cat && styles.navButtonTextActive]}>{cat}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <View style={styles.titleContainer}>
-              <Text style={styles.menuTitle}>Nuestro Menú</Text>
-              <View style={styles.titleUnderline} />
-            </View>
+
+
 
             <View style={styles.brandSection}>
               <Text style={styles.brandTitle}>Marcas con las que trabajamos</Text>
@@ -357,8 +375,8 @@ export default function HomeScreen({ navigation }) {
             {displayedCategories.map((category) => {
               const categoryProducts = products.filter(p => p.category === category);
               return (
-                <View 
-                  key={category} 
+                <View
+                  key={category}
                   style={styles.categorySection}
                   onLayout={(event) => {
                     const { y } = event.nativeEvent.layout;
@@ -372,8 +390,8 @@ export default function HomeScreen({ navigation }) {
                     <View style={styles.categoryLine} />
                   </View>
 
-                  <ScrollView 
-                    horizontal 
+                  <ScrollView
+                    horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.horizontalProducts}
                   >
@@ -430,21 +448,15 @@ export default function HomeScreen({ navigation }) {
             <TouchableOpacity onPress={() => setIsAboutVisible(false)} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
-            <Image 
-              source={require('../../assets/logo-cuadrado.png')} 
-              style={styles.modalLogo} 
-              resizeMode="contain" 
+            <Image
+              source={require('../../assets/logo-cuadrado.png')}
+              style={styles.modalLogo}
+              resizeMode="contain"
             />
-            <Text style={styles.modalTitle}>Quiénes Somos</Text>
+            <Text style={styles.modalTitle}>QUIÉNES SOMOS</Text>
             <Text style={styles.modalDescription}>
-              Mora Protein es una marca de snacks saludables{'\n'}
-              hechos a mano, sin azúcar, altos en proteína y con{'\n'}
-              opciones veganas.{'\n\n'}
-              Desarrollamos productos artesanales, naturales y{'\n'}
-              frescos, pensados para quienes buscan cuidarse{'\n'}
-              sin dejar de disfrutar. Nuestra propuesta combina{'\n'}
-              nutrición y sabor en formatos prácticos, accesibles{'\n'}
-              y fáciles de integrar al día a día.
+              Mora Protein es una marca de snacks saludables hechos a mano, sin azúcar, altos en proteína y con opciones veganas.{"\n\n"}
+              Desarrollamos productos artesanales, naturales y frescos, pensados para quienes buscan cuidarse sin dejar de disfrutar. Nuestra propuesta combina nutrición y sabor en formatos prácticos, accesibles y fáciles de integrar al día a día.
             </Text>
           </View>
         </View>
@@ -504,31 +516,33 @@ export default function HomeScreen({ navigation }) {
                     </TouchableOpacity>
                   </View>
 
-                  <View style={styles.modalButtonsRow}>
-                    <TouchableOpacity
-                      style={styles.modalAddToCartButton}
-                      onPress={() => {
-                        const options = selectedProduct.coverageOptions?.length ? { coverage: selectedProduct.coverage } : {};
-                        addToCart(selectedProduct, options, modalQuantity);
-                        alert(`Agregado: ${modalQuantity} x ${selectedProduct.name}${selectedProduct.coverage ? ` (${selectedProduct.coverage})` : ''}`);
-                        setIsProductModalVisible(false);
-                      }}
-                    >
-                      <ShoppingCart color="#fff" size={16} />
-                      <Text style={styles.modalAddToCartText}>Agregar {modalQuantity}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.modalViewDetailsButton}
-                      onPress={() => {
-                        setIsProductModalVisible(false);
-                        navigation.navigate('ProductDetail', { product: selectedProduct });
-                      }}
-                    >
-                      <Text style={styles.modalViewDetailsText}>Ver Detalles</Text>
-                    </TouchableOpacity>
-                  </View>
                 </View>
               </ScrollView>
+            )}
+            {selectedProduct && (
+              <View style={styles.modalButtonsRow}>
+                <TouchableOpacity
+                  style={styles.modalAddToCartButton}
+                  onPress={() => {
+                    const options = selectedProduct.coverageOptions?.length ? { coverage: selectedProduct.coverage } : {};
+                    addToCart(selectedProduct, options, modalQuantity);
+                    alert(`Agregado: ${modalQuantity} x ${selectedProduct.name}${selectedProduct.coverage ? ` (${selectedProduct.coverage})` : ''}`);
+                    setIsProductModalVisible(false);
+                  }}
+                >
+                  <ShoppingCart color="#fff" size={16} />
+                  <Text style={styles.modalAddToCartText}>Agregar {modalQuantity}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalViewDetailsButton}
+                  onPress={() => {
+                    setIsProductModalVisible(false);
+                    navigation.navigate('ProductDetail', { product: selectedProduct });
+                  }}
+                >
+                  <Text style={styles.modalViewDetailsText}>Ver Detalles</Text>
+                </TouchableOpacity>
+              </View>
             )}
           </View>
         </View>
@@ -561,6 +575,126 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
       </Modal>
+      {/* Category Menu */}
+      {isCategoryMenuVisible && (
+        <View style={styles.categoryMenuOverlay}>
+          <TouchableOpacity 
+            activeOpacity={1} 
+            style={StyleSheet.absoluteFill} 
+            onPress={() => toggleCategoryMenu(false)} 
+          />
+          <Animated.View style={[styles.categoryMenu, { transform: [{ translateY: categoryMenuAnim }] }]}>
+            <View style={styles.categoryMenuHeader}>
+              <Text style={styles.categoryMenuTitle}>Snacks 100% Naturales</Text>
+              <TouchableOpacity onPress={() => toggleCategoryMenu(false)}>
+                <X color="#FFFFFF" size={24} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.categoryMenuOptions}>
+              <TouchableOpacity
+                style={[styles.catMenuBtn, !selectedCategory && styles.catMenuBtnActive]}
+                onPress={() => {
+                  setSelectedCategory(null);
+                  toggleCategoryMenu(false);
+                  scrollToSection('Nuestro Menú');
+                }}
+              >
+                <Text style={[styles.catMenuBtnText, !selectedCategory && styles.catMenuBtnTextActive]}>Ver Todos</Text>
+              </TouchableOpacity>
+              {categories.map(cat => (
+                <TouchableOpacity
+                  key={`menu-cat-${cat}`}
+                  style={[styles.catMenuBtn, selectedCategory === cat && styles.catMenuBtnActive]}
+                  onPress={() => {
+                    setSelectedCategory(cat);
+                    toggleCategoryMenu(false);
+                    scrollToSection('Nuestro Menú');
+                  }}
+                >
+                  <Text style={[styles.catMenuBtnText, selectedCategory === cat && styles.catMenuBtnTextActive]}>{cat}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </Animated.View>
+        </View>
+      )}
+
+      {/* Cart Drawer */}
+      {isCartDrawerVisible && (
+        <View style={StyleSheet.absoluteFill}>
+          <TouchableOpacity 
+            activeOpacity={1} 
+            style={styles.drawerOverlay} 
+            onPress={() => toggleCartDrawer(false)} 
+          />
+          <Animated.View style={[styles.cartDrawer, { transform: [{ translateX: cartAnim }] }]}>
+            <View style={styles.drawerHeader}>
+              <Text style={styles.drawerTitle}>Tu Carrito</Text>
+              <TouchableOpacity onPress={() => toggleCartDrawer(false)} style={styles.drawerCloseBtn}>
+                <X color="#FFFFFF" size={24} />
+              </TouchableOpacity>
+            </View>
+
+            {cart.length === 0 ? (
+              <View style={styles.emptyDrawer}>
+                <ShoppingCart color="rgba(255,255,255,0.1)" size={80} />
+                <Text style={styles.emptyDrawerText}>Tu carrito está vacío</Text>
+                <TouchableOpacity style={styles.startShoppingBtn} onPress={() => toggleCartDrawer(false)}>
+                  <Text style={styles.startShoppingText}>Empezar a comprar</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <>
+                <ScrollView style={styles.drawerScroll}>
+                  {cart.map((item) => (
+                    <View key={item.cartItemId} style={styles.drawerItem}>
+                      <Image source={item.image} style={styles.drawerItemImage} />
+                      <View style={styles.drawerItemInfo}>
+                        <Text style={styles.drawerItemName} numberOfLines={1}>{item.name}</Text>
+                        <Text style={styles.drawerItemOption}>{item.coverage || ''}</Text>
+                        <Text style={styles.drawerItemPrice}>${item.price}</Text>
+                        <View style={styles.drawerQtyRow}>
+                          <TouchableOpacity 
+                            style={styles.drawerQtyBtn} 
+                            onPress={() => decrementQuantity(item.cartItemId)}
+                          >
+                            <Minus color="#FFF" size={14} />
+                          </TouchableOpacity>
+                          <Text style={styles.drawerQtyText}>{item.quantity}</Text>
+                          <TouchableOpacity 
+                            style={styles.drawerQtyBtn} 
+                            onPress={() => incrementQuantity(item.cartItemId)}
+                          >
+                            <Plus color="#FFF" size={14} />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                      <TouchableOpacity 
+                        style={styles.drawerRemoveBtn} 
+                        onPress={() => removeItem(item.cartItemId)}
+                      >
+                        <Trash2 color="#FF4B4B" size={18} />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </ScrollView>
+
+                <View style={styles.drawerFooter}>
+                  <View style={styles.drawerTotalRow}>
+                    <Text style={styles.drawerTotalLabel}>Total</Text>
+                    <Text style={styles.drawerTotalValue}>
+                      ${cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
+                    </Text>
+                  </View>
+                  <TouchableOpacity style={styles.checkoutBtn} onPress={handleCheckout}>
+                    <Text style={styles.checkoutText}>Pedir por WhatsApp</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </Animated.View>
+        </View>
+      )}
     </View>
   );
 }
@@ -592,7 +726,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 20,
     paddingBottom: 15,
     backgroundColor: 'rgba(0,0,0,0.5)',
     zIndex: 100,
@@ -603,8 +737,8 @@ const styles = StyleSheet.create({
   },
   navLinks: {
     flexDirection: 'row',
-    gap: 20,
-    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
   },
   navLinkText: {
     color: '#FFFFFF',
@@ -612,20 +746,19 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   iconLink: {
-    marginLeft: 5,
+    marginLeft: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   buyButton: {
-    backgroundColor: 'rgba(210, 180, 140, 0.2)',
-    borderWidth: 1,
-    borderColor: '#D2B48C',
-    borderRadius: 20,
+    backgroundColor: 'transparent',
+    borderWidth: 0,
     width: 44,
     height: 44,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    marginLeft: 8,
   },
   buyButtonText: {
     display: 'none',
@@ -636,6 +769,12 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     maxWidth: 900,
     width: '100%',
+    backgroundColor: 'rgba(30, 30, 30, 0.5)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    padding: 24,
+    marginHorizontal: 20,
   },
   heroTitle: {
     color: '#FFFFFF',
@@ -664,51 +803,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     textTransform: 'uppercase',
   },
-  categoryNav: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    gap: 12,
-  },
-  navButton: {
-    backgroundColor: 'transparent',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  navButtonActive: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#FFFFFF',
-  },
-  navButtonText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textTransform: 'uppercase',
-  },
-  navButtonTextActive: {
-    color: '#121212',
-  },
+
   scrollContent: {
     paddingBottom: 80,
   },
-  titleContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  menuTitle: {
-    color: '#FFFFFF',
-    fontSize: 32,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-  },
-  titleUnderline: {
-    width: 60,
-    height: 4,
-    backgroundColor: '#D2B48C',
-    marginTop: 8,
-  },
+
   categorySection: {
     marginBottom: 40,
     paddingHorizontal: 10,
@@ -746,29 +845,42 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 20,
     elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   imageContainer: {
     aspectRatio: 1,
     width: '100%',
     position: 'relative',
+    padding: 10,
   },
   productImage: {
     width: '100%',
     height: '100%',
+    borderRadius: 16,
   },
   priceBadge: {
     position: 'absolute',
-    top: 15,
-    right: 15,
-    backgroundColor: '#D2B48C',
-    paddingHorizontal: 12,
+    top: 18,
+    right: 18,
+    backgroundColor: 'rgba(18, 18, 18, 0.9)',
+    paddingHorizontal: 14,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#D2B48C',
+    shadowColor: '#D2B48C',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    elevation: 8,
+    zIndex: 10,
   },
   priceBadgeText: {
-    color: '#121212',
+    color: '#D2B48C',
     fontWeight: '900',
     fontSize: 16,
+    letterSpacing: 0.5,
   },
   cardContent: {
     padding: 16,
@@ -788,10 +900,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   productDescription: {
-    color: '#888888',
-    fontSize: 13,
+    color: '#5EDB8A',
+    fontSize: 12,
+    fontWeight: '700',
     lineHeight: 18,
     marginBottom: 16,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(80, 220, 130, 0.4)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 4,
   },
   quantityContainer: {
     flexDirection: 'row',
@@ -805,38 +923,47 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   quantityButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#333333',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#2a2a2a',
+    borderWidth: 1,
+    borderColor: '#444',
     alignItems: 'center',
     justifyContent: 'center',
   },
   quantityButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '300',
+    lineHeight: 22,
   },
   quantityText: {
     color: '#FFFFFF',
-    marginHorizontal: 12,
-    fontSize: 14,
+    marginHorizontal: 14,
+    fontSize: 16,
     fontWeight: '700',
   },
   addToCartButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#D2B48C',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: 13,
+    borderRadius: 14,
     gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
   },
   addToCartText: {
-    color: '#000000',
+    color: '#121212',
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '900',
     textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   brandSection: {
     marginVertical: 40,
@@ -855,6 +982,8 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   brandLogo: {
     width: 80,
@@ -869,6 +998,11 @@ const styles = StyleSheet.create({
     padding: 40,
     backgroundColor: '#111111',
     marginTop: 40,
+    marginHorizontal: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    marginBottom: 20,
   },
   footerTitle: {
     color: '#D2B48C',
@@ -931,14 +1065,14 @@ const styles = StyleSheet.create({
   productModalContent: {
     backgroundColor: '#121212',
     borderRadius: 32,
-    maxWidth: 550,
+    maxWidth: 360,
     width: '100%',
-    maxHeight: '85%',
+    maxHeight: '70%',
     overflow: 'hidden',
   },
   modalProductImage: {
     width: '100%',
-    height: 250,
+    height: 170,
   },
   modalProductInfo: {
     padding: 25,
@@ -962,10 +1096,18 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   modalProductPrice: {
-    color: '#FFFFFF',
-    fontSize: 24,
+    color: '#D2B48C',
+    fontSize: 22,
     fontWeight: '900',
-    marginTop: 20,
+    marginTop: 15,
+    backgroundColor: 'rgba(210, 180, 140, 0.1)',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderLeftWidth: 3,
+    borderLeftColor: '#D2B48C',
+    letterSpacing: 0.5,
   },
   modalQuantityRow: {
     flexDirection: 'row',
@@ -977,14 +1119,17 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#333333',
+    backgroundColor: '#2a2a2a',
+    borderWidth: 1,
+    borderColor: '#444',
     alignItems: 'center',
     justifyContent: 'center',
   },
   modalQtyBtnText: {
     color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '300',
+    lineHeight: 26,
   },
   modalQtyText: {
     color: '#FFFFFF',
@@ -992,30 +1137,60 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   modalButtonsRow: {
-    marginTop: 30,
-    gap: 12,
+    marginTop: -20,
+    paddingTop: 28,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    flexDirection: 'row',
+    gap: 10,
+    backgroundColor: '#1a1a1a',
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 12,
   },
   modalAddToCartButton: {
+    flex: 1,
     backgroundColor: '#D2B48C',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 16,
-    gap: 10,
+    paddingVertical: 14,
+    borderRadius: 14,
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
   },
   modalAddToCartText: {
     color: '#121212',
-    fontSize: 16,
-    fontWeight: '800',
+    fontSize: 14,
+    fontWeight: '900',
     textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   modalViewDetailsButton: {
+    flex: 1,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    paddingVertical: 14,
-    borderRadius: 16,
+    borderColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    paddingVertical: 12,
+    borderRadius: 14,
     alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   modalViewDetailsText: {
     color: '#FFFFFF',
@@ -1023,17 +1198,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   badgeContainer: {
-    marginLeft: 8,
+    position: 'absolute',
+    top: -5,
+    right: -5,
     backgroundColor: '#D2B48C',
     borderRadius: 10,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    minWidth: 20,
+    minWidth: 18,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#121212',
   },
   badgeText: {
     color: '#121212',
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 'bold',
   },
   logoContainer: {
@@ -1086,8 +1265,10 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 1000,
     height: 180,
-    borderRadius: 24,
+    borderRadius: 20,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   workWithUsOverlay: {
     flex: 1,
@@ -1200,6 +1381,217 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   modalCoverageSelectedText: {
+    color: '#121212',
+  },
+  // Cart Drawer Styles
+  drawerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    zIndex: 999,
+  },
+  cartDrawer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: '#121212',
+    zIndex: 1000,
+    paddingTop: 40,
+    borderLeftWidth: 1,
+    borderLeftColor: 'rgba(255,255,255,0.1)',
+  },
+  drawerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+  },
+  drawerTitle: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '900',
+  },
+  drawerCloseBtn: {
+    padding: 5,
+  },
+  drawerScroll: {
+    flex: 1,
+    padding: 20,
+  },
+  drawerItem: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    backgroundColor: '#1E1E1E',
+    borderRadius: 12,
+    padding: 10,
+    alignItems: 'center',
+  },
+  drawerItemImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+  },
+  drawerItemInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  drawerItemName: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  drawerItemOption: {
+    color: '#ADADAD',
+    fontSize: 10,
+  },
+  drawerItemPrice: {
+    color: '#D2B48C',
+    fontSize: 14,
+    fontWeight: '900',
+    marginTop: 4,
+  },
+  drawerQtyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 12,
+  },
+  drawerQtyBtn: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#333',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  drawerQtyText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  drawerRemoveBtn: {
+    padding: 10,
+  },
+  emptyDrawer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+  },
+  emptyDrawerText: {
+    color: '#ADADAD',
+    fontSize: 16,
+    marginTop: 20,
+    marginBottom: 30,
+  },
+  startShoppingBtn: {
+    backgroundColor: '#D2B48C',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+  startShoppingText: {
+    color: '#121212',
+    fontWeight: '900',
+  },
+  drawerFooter: {
+    padding: 20,
+    backgroundColor: '#1E1E1E',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+  },
+  drawerTotalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  drawerTotalLabel: {
+    color: '#ADADAD',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  drawerTotalValue: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '900',
+  },
+  checkoutBtn: {
+    backgroundColor: '#25D366',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    borderRadius: 14,
+    gap: 10,
+  },
+  checkoutText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '900',
+  },
+  // Category Menu Styles
+  categoryMenuOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    zIndex: 1100,
+  },
+  categoryMenu: {
+    backgroundColor: '#1E1E1E',
+    paddingTop: 60,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    borderBottomWidth: 2,
+    borderBottomColor: '#D2B48C',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 20,
+  },
+  categoryMenuHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+  categoryMenuTitle: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  categoryMenuOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  catMenuBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  catMenuBtnActive: {
+    backgroundColor: '#D2B48C',
+    borderColor: '#D2B48C',
+  },
+  catMenuBtnText: {
+    color: '#ADADAD',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  catMenuBtnTextActive: {
     color: '#121212',
   },
 });
