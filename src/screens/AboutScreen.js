@@ -17,8 +17,8 @@ export default function AboutScreen({ navigation }) {
           Desarrollamos productos artesanales, naturales y{'\n'}
           frescos, pensados para quienes buscan cuidarse{'\n'}
           sin dejar de disfrutar. Nuestra propuesta combina{'\n'}
-          nutrición y sabor en formatos prácticos, accesibles{'\n'}
-          y fáciles de integrar al día a día.
+          nutrición y sabor en formatos prácticos, accesibles y fáciles de integrar al día a día.{'\n'}
+         
         </Text>
       </View>
     </ScrollView>

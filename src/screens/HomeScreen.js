@@ -129,15 +129,8 @@ export default function HomeScreen({ navigation }) {
   const displayedCategories = selectedCategory ? [selectedCategory] : categories;
 
   // Configuración responsive para los cards del menú
-  const productsOuterPadding = 14;
+  const cardWidth = 280;
   const cardGap = 16;
-  const cardBasis = width > 1200
-    ? (width - productsOuterPadding * 2 - cardGap * 3) / 4
-    : width > 800
-    ? (width - productsOuterPadding * 2 - cardGap * 2) / 3
-    : width > 500
-    ? (width - productsOuterPadding * 2 - cardGap) / 2
-    : width - productsOuterPadding * 2;
 
   const renderProduct = (item) => {
     const coverage = selectedCoverage[item.id] || item.coverageOptions?.[0];
@@ -146,7 +139,7 @@ export default function HomeScreen({ navigation }) {
       <TouchableOpacity
         key={item.id}
         activeOpacity={0.8}
-        style={[styles.card, { flexBasis: cardBasis }]}
+        style={[styles.card, { width: cardWidth }]}
         onPress={() => {
           setSelectedProduct(item);
           setIsProductModalVisible(true);
@@ -238,56 +231,32 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.mainContainer}>
       <ImageBackground
-        source={require('../../assets/logo-cuadrado.png')}
+        source={require('../../assets/logo-cuadrado-snacks.jpeg')}
         style={styles.backgroundImage}
         imageStyle={styles.imageOpacity}
         resizeMode="cover"
       >
         <View style={styles.overlayContainer}>
-          <View style={styles.header}>
-            <View style={styles.headerTop}>
-              <View style={styles.logoContainer}>
-                <Text style={styles.brandMora}>Mora<Text style={styles.brandProtein}>Protein</Text></Text>
-              </View>
-              <View style={styles.headerIcons}>
-                <TouchableOpacity onPress={() => setIsWorkModalVisible(true)} style={[styles.aboutButton, styles.workHeaderButton]}>
-                  <Text style={styles.workHeaderButtonText}>Trabaja con Nosotros</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setIsAboutVisible(true)} style={styles.aboutButton}>
-                  <Text style={styles.aboutButtonText}>Quiénes Somos</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={openInstagram} style={styles.iconButton}>
-                  <Instagram color="#1A1A1A" size={24} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={styles.iconButton}>
-                  <View>
-                    <ShoppingCart color="#1A1A1A" size={24} />
-                    {getCartCount() > 0 && (
-                      <View style={styles.badgeContainer}>
-                        <Text style={styles.badgeText}>{getCartCount()}</Text>
-                      </View>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              </View>
+          <View style={styles.headerTop}>
+            <View style={styles.logoContainer}>
+              <Image source={require('../../assets/logo-circular.png')} style={styles.headerLogo} resizeMode="contain" />
             </View>
-
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categoryNav}
-            >
-              {categories.map(cat => (
-                <TouchableOpacity 
-                  key={`nav-${cat}`} 
-                  style={styles.navButton}
-                  onPress={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
-                >
-                  <Text style={styles.navButtonText}>{cat}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
+            <View style={styles.navLinks}>
+              <TouchableOpacity onPress={() => scrollToSection('Inicio')}><Text style={styles.navLinkText}>Inicio</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => setIsAboutVisible(true)}><Text style={styles.navLinkText}>Nosotros</Text></TouchableOpacity>
+              <TouchableOpacity onPress={openWhatsApp}><Text style={styles.navLinkText}>Contacto</Text></TouchableOpacity>
+              <TouchableOpacity onPress={openInstagram} style={styles.iconLink}>
+                <Instagram color="#FFFFFF" size={20} />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={styles.buyButton}>
+              <ShoppingCart color="#FFFFFF" size={20} />
+              {getCartCount() > 0 && (
+                <View style={styles.badgeContainer}>
+                  <Text style={styles.badgeText}>{getCartCount()}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
           </View>
 
           <ScrollView
@@ -295,12 +264,41 @@ export default function HomeScreen({ navigation }) {
             showsVerticalScrollIndicator={true}
             contentContainerStyle={styles.scrollContent}
           >
+            <View style={styles.heroSection}>
+              <Text style={styles.heroTitle}>Snacks de proteína{"\n"}100% naturales</Text>
+              <Text style={styles.heroSubtitle}>Deliciosas. Nutritivas. Sin azúcar.</Text>
+              <TouchableOpacity 
+                style={styles.heroCTA}
+                onPress={() => scrollToSection(categories[0])}
+              >
+                <Text style={styles.heroCTAText}>Ver productos</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoryNav}
+            >
+              <TouchableOpacity 
+                style={[styles.navButton, !selectedCategory && styles.navButtonActive]}
+                onPress={() => setSelectedCategory(null)}
+              >
+                <Text style={[styles.navButtonText, !selectedCategory && styles.navButtonTextActive]}>Ver Todos</Text>
+              </TouchableOpacity>
+              {categories.map(cat => (
+                <TouchableOpacity 
+                  key={`nav-${cat}`} 
+                  style={[styles.navButton, selectedCategory === cat && styles.navButtonActive]}
+                  onPress={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
+                >
+                  <Text style={[styles.navButtonText, selectedCategory === cat && styles.navButtonTextActive]}>{cat}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
             <View style={styles.titleContainer}>
-              <Text style={styles.mainTitle}>
-                <Text style={styles.mainTitleLine}>Nuestro</Text>{"\n"}
-                <Text style={styles.mainTitleHighlight}>Menú</Text>
-              </Text>
-              <Text style={styles.subtitle}>Descubre todos nuestros snacks, separados por categoría.</Text>
+              <Text style={styles.menuTitle}>Nuestro Menú</Text>
+              <View style={styles.titleUnderline} />
             </View>
 
             <View style={styles.brandSection}>
@@ -374,12 +372,32 @@ export default function HomeScreen({ navigation }) {
                     <View style={styles.categoryLine} />
                   </View>
 
-                  <View style={styles.productsGrid}>
+                  <ScrollView 
+                    horizontal 
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.horizontalProducts}
+                  >
                     {categoryProducts.map(product => renderProduct(product))}
-                  </View>
+                  </ScrollView>
                 </View>
               );
             })}
+
+            <View style={styles.workWithUsSection}>
+              <ImageBackground
+                source={require('../../assets/imagen-horizontal-de.png')}
+                style={styles.workWithUsBg}
+                imageStyle={{ borderRadius: 20 }}
+              >
+                <View style={styles.workWithUsOverlay}>
+                  <Text style={styles.workWithUsTitle}>Trabaja con Nosotros</Text>
+                  <Text style={styles.workWithUsSubtitle}>¿Quieres distribuir Mora Protein en tu local o gimnasio? Conversemos.</Text>
+                  <TouchableOpacity style={styles.workWithUsButton} onPress={openWhatsApp}>
+                    <Text style={styles.workWithUsButtonText}>Contactar por WhatsApp</Text>
+                  </TouchableOpacity>
+                </View>
+              </ImageBackground>
+            </View>
 
             <View style={styles.footerContainer}>
               <Text style={styles.footerTitle}>LA PROPUESTA</Text>
@@ -412,6 +430,11 @@ export default function HomeScreen({ navigation }) {
             <TouchableOpacity onPress={() => setIsAboutVisible(false)} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
+            <Image 
+              source={require('../../assets/logo-cuadrado.png')} 
+              style={styles.modalLogo} 
+              resizeMode="contain" 
+            />
             <Text style={styles.modalTitle}>Quiénes Somos</Text>
             <Text style={styles.modalDescription}>
               Mora Protein es una marca de snacks saludables{'\n'}
@@ -450,8 +473,6 @@ export default function HomeScreen({ navigation }) {
                   <Text style={styles.modalProductName}>{selectedProduct.name}</Text>
                   <Text style={styles.modalProductFlavor}>{selectedProduct.flavor || ''}</Text>
                   <Text style={styles.modalProductDescription}>{selectedProduct.description}</Text>
-                  <Text style={styles.modalProductPrice}>${selectedProduct.price}</Text>
-
                   {selectedProduct.coverageOptions?.length > 0 && (
                     <View style={styles.modalCoverageSection}>
                       <Text style={styles.modalCoverageTitle}>Cobertura</Text>
@@ -470,6 +491,8 @@ export default function HomeScreen({ navigation }) {
                       </View>
                     </View>
                   )}
+
+                  <Text style={styles.modalProductPrice}>${selectedProduct.price}</Text>
 
                   <View style={styles.modalQuantityRow}>
                     <TouchableOpacity style={styles.modalQtyBtn} onPress={() => setModalQuantity(prev => Math.max(1, prev - 1))}>
@@ -545,7 +568,7 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: '#F9F8F6', // Color crema unificado como base
+    backgroundColor: '#000000',
   },
   backgroundImage: {
     flex: 1,
@@ -553,16 +576,15 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   imageOpacity: {
-    opacity: 0.55, // Aumentamos la opacidad para mayor nitidez
+    opacity: 0.3,
   },
   overlayContainer: {
     flex: 1,
-    backgroundColor: 'rgba(249, 248, 246, 0.2)', // Menos opacidad para mantener el fondo visible
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   header: {
-    paddingTop: 20,
+    paddingTop: 40,
     backgroundColor: 'transparent',
-    borderBottomWidth: 0,
     zIndex: 10,
   },
   headerTop: {
@@ -570,84 +592,564 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginBottom: 15,
+    paddingTop: 50,
+    paddingBottom: 15,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 100,
+  },
+  headerLogo: {
+    width: 60,
+    height: 60,
+  },
+  navLinks: {
+    flexDirection: 'row',
+    gap: 20,
+    display: 'flex',
+  },
+  navLinkText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  iconLink: {
+    marginLeft: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buyButton: {
+    backgroundColor: 'rgba(210, 180, 140, 0.2)',
+    borderWidth: 1,
+    borderColor: '#D2B48C',
+    borderRadius: 20,
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  buyButtonText: {
+    display: 'none',
+  },
+  heroSection: {
+    paddingHorizontal: 20,
+    marginTop: 30,
+    marginBottom: 50,
+    maxWidth: 900,
+    width: '100%',
+  },
+  heroTitle: {
+    color: '#FFFFFF',
+    fontSize: 48,
+    fontWeight: '900',
+    lineHeight: 56,
+    letterSpacing: -1,
+  },
+  heroSubtitle: {
+    color: '#ADADAD',
+    fontSize: 18,
+    marginTop: 15,
+    fontWeight: '400',
+  },
+  heroCTA: {
+    backgroundColor: '#D2B48C',
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    alignSelf: 'flex-start',
+    marginTop: 30,
+  },
+  heroCTAText: {
+    color: '#121212',
+    fontSize: 16,
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
   categoryNav: {
     paddingHorizontal: 20,
-    paddingBottom: 15,
-    gap: 10,
+    paddingBottom: 20,
+    gap: 12,
   },
-  brandSection: {
-    marginTop: 10,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 22,
-    marginHorizontal: 10,
+  navButton: {
+    backgroundColor: 'transparent',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  navButtonActive: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
+  },
+  navButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textTransform: 'uppercase',
+  },
+  navButtonTextActive: {
+    color: '#121212',
+  },
+  scrollContent: {
+    paddingBottom: 80,
+  },
+  titleContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  menuTitle: {
+    color: '#FFFFFF',
+    fontSize: 32,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+  },
+  titleUnderline: {
+    width: 60,
+    height: 4,
+    backgroundColor: '#D2B48C',
+    marginTop: 8,
+  },
+  categorySection: {
+    marginBottom: 40,
+    paddingHorizontal: 10,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  categoryTitle: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  categoryLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginLeft: 15,
+  },
+  productsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+  },
+  card: {
+    backgroundColor: '#1E1E1E',
+    margin: 8,
+    borderRadius: 24,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 15,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 8,
   },
-  brandTitle: {
+  imageContainer: {
+    aspectRatio: 1,
+    width: '100%',
+    position: 'relative',
+  },
+  productImage: {
+    width: '100%',
+    height: '100%',
+  },
+  priceBadge: {
+    position: 'absolute',
+    top: 15,
+    right: 15,
+    backgroundColor: '#D2B48C',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  priceBadgeText: {
+    color: '#121212',
+    fontWeight: '900',
+    fontSize: 16,
+  },
+  cardContent: {
+    padding: 16,
+  },
+  categoryTag: {
+    color: '#ADADAD',
+    fontSize: 10,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  productName: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 8,
+  },
+  productDescription: {
+    color: '#888888',
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  quantityLabel: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+    marginRight: 10,
+  },
+  quantityButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#333333',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quantityButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  quantityText: {
+    color: '#FFFFFF',
+    marginHorizontal: 12,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  addToCartButton: {
+    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+    gap: 8,
+  },
+  addToCartText: {
+    color: '#000000',
     fontSize: 14,
     fontWeight: '800',
-    color: '#1A1A1A',
-    marginBottom: 12,
-    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
-  brandScrollContent: {
-    paddingBottom: 6,
+  brandSection: {
+    marginVertical: 40,
+    paddingHorizontal: 20,
+  },
+  brandTitle: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  brandCard: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brandLogo: {
+    width: 80,
+    height: 40,
+  },
+  brandName: {
+    color: '#ADADAD',
+    fontSize: 12,
+    marginTop: 10,
+  },
+  footerContainer: {
+    padding: 40,
+    backgroundColor: '#111111',
+    marginTop: 40,
+  },
+  footerTitle: {
+    color: '#D2B48C',
+    fontSize: 24,
+    fontWeight: '900',
+    marginBottom: 20,
+  },
+  footerText: {
+    color: '#888888',
+    fontSize: 14,
+    lineHeight: 24,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 32,
+    padding: 30,
+    position: 'relative',
+    maxWidth: 550,
+    width: '100%',
+    alignItems: 'center',
+  },
+  modalLogo: {
+    width: 120,
+    height: 120,
+    marginBottom: 20,
+    borderRadius: 20,
+  },
+  modalTitle: {
+    color: '#FFFFFF',
+    fontSize: 28,
+    fontWeight: '900',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalDescription: {
+    color: '#ADADAD',
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: 'center',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 10,
+  },
+  closeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 32,
+    fontWeight: '300',
+  },
+  // Modal de producto
+  productModalContent: {
+    backgroundColor: '#121212',
+    borderRadius: 32,
+    maxWidth: 550,
+    width: '100%',
+    maxHeight: '85%',
+    overflow: 'hidden',
+  },
+  modalProductImage: {
+    width: '100%',
+    height: 250,
+  },
+  modalProductInfo: {
+    padding: 25,
+  },
+  modalProductCategory: {
+    color: '#D2B48C',
+    fontSize: 12,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  modalProductName: {
+    color: '#FFFFFF',
+    fontSize: 28,
+    fontWeight: '900',
+    marginTop: 8,
+  },
+  modalProductDescription: {
+    color: '#ADADAD',
+    fontSize: 15,
+    lineHeight: 22,
+    marginTop: 12,
+  },
+  modalProductPrice: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '900',
+    marginTop: 20,
+  },
+  modalQuantityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 25,
+    gap: 20,
+  },
+  modalQtyBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#333333',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalQtyBtnText: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  modalQtyText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  modalButtonsRow: {
+    marginTop: 30,
+    gap: 12,
+  },
+  modalAddToCartButton: {
+    backgroundColor: '#D2B48C',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    borderRadius: 16,
+    gap: 10,
+  },
+  modalAddToCartText: {
+    color: '#121212',
+    fontSize: 16,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  modalViewDetailsButton: {
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+    paddingVertical: 14,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  modalViewDetailsText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  badgeContainer: {
+    marginLeft: 8,
+    backgroundColor: '#D2B48C',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    minWidth: 20,
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#121212',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  logoContainer: {
+    // Logo circular circular
+  },
+  coverageContainer: {
+    marginBottom: 16,
+  },
+  optionsLabel: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  coverageRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  coverageOption: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#333333',
+  },
+  coverageSelected: {
+    backgroundColor: '#D2B48C',
+    borderColor: '#D2B48C',
+  },
+  coverageText: {
+    color: '#888888',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  coverageTextSelected: {
+    color: '#121212',
+  },
+  horizontalProducts: {
+    paddingLeft: 20,
+    paddingRight: 10,
+    paddingBottom: 30,
+  },
+  workWithUsSection: {
+    paddingHorizontal: 20,
+    marginVertical: 40,
+    alignItems: 'center',
+  },
+  workWithUsBg: {
+    width: '100%',
+    maxWidth: 1000,
+    height: 180,
+    borderRadius: 24,
+    overflow: 'hidden',
+  },
+  workWithUsOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    padding: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  workWithUsTitle: {
+    color: '#FFFFFF',
+    fontSize: 28,
+    fontWeight: '900',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  workWithUsSubtitle: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  workWithUsButton: {
+    backgroundColor: '#D2B48C',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  workWithUsButtonText: {
+    color: '#121212',
+    fontWeight: '900',
+    fontSize: 14,
+    textTransform: 'uppercase',
   },
   brandCarouselWrapper: {
-    position: 'relative',
     overflow: 'hidden',
+    position: 'relative',
+    height: 120,
+    marginVertical: 10,
   },
   brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    height: '100%',
   },
   brandNavButton: {
     position: 'absolute',
-    top: '45%',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    top: '50%',
+    marginTop: -20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
   },
   brandNavButtonLeft: {
-    left: 10,
+    left: -10,
   },
   brandNavButtonRight: {
-    right: 10,
-  },
-  brandCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    paddingVertical: 18,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  brandLogo: {
-    width: 60,
-    height: 60,
-    marginBottom: 10,
-  },
-  brandName: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#1A1A1A',
-    textAlign: 'center',
+    right: -10,
   },
   brandDots: {
     flexDirection: 'row',
@@ -656,633 +1158,48 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   brandDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(26, 26, 26, 0.2)',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
   brandDotActive: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#D2B48C',
+    width: 12,
   },
-  navButton: {
-    backgroundColor: '#FFFFFF',
+  modalCoverageSection: {
+    marginTop: 20,
+    marginBottom: 5,
+  },
+  modalCoverageTitle: {
+    color: '#ADADAD',
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    marginBottom: 10,
+  },
+  modalCoverageRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  modalCoverageOption: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E8E2D9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  navButtonText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#1A1A1A',
-    textTransform: 'uppercase',
-  },
-  logoContainer: {
-    backgroundColor: '#D7CFC2',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  brandMora: {
-    color: '#000000',
-    fontWeight: '900',
-    fontSize: 26,
-    letterSpacing: -1,
-  },
-  brandProtein: {
-    color: '#FFFFFF',
-    fontWeight: '900',
-    fontSize: 26,
-    letterSpacing: -1,
-  },
-  headerIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconButton: {
-    marginLeft: 10,
-    padding: 4,
-  },
-  badgeContainer: {
-    position: 'absolute',
-    right: -8,
-    top: -8,
-    backgroundColor: '#000000',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    color: '#D7CFC2',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  aboutButton: {
-    marginRight: 15,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: '#D7CFC2',
-    borderRadius: 16,
-  },
-  workHeaderButton: {
-    marginRight: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: '#1A1A1A',
-    borderRadius: 16,
-  },
-  aboutButtonText: {
-    color: '#1A1A1A',
-    fontSize: 12,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-  },
-  workHeaderButtonText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-  },
-  scrollContent: {
-    paddingTop: 16,
-    paddingBottom: 60,
-  },
-  titleContainer: {
-    marginHorizontal: 20,
-    marginTop: 0,
-    marginBottom: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.07,
-    shadowRadius: 16,
-    elevation: 5,
-    alignItems: 'center',
-  },
-  mainTitle: {
-    color: '#1A1A1A',
-    fontSize: 34,
-    fontWeight: '900',
-    lineHeight: 42,
-    textAlign: 'center',
-  },
-  mainTitleLine: {
-    letterSpacing: -0.5,
-  },
-  mainTitleHighlight: {
-    color: '#D7CFC2',
-  },
-  subtitle: {
-    color: '#555555',
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: 8,
-    lineHeight: 18,
-  },
-  categorySection: {
-    marginBottom: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Suave contenedor por sección
-    paddingVertical: 20,
-    borderRadius: 24,
-    marginHorizontal: 10,
-  },
-  categoryHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 15,
-    marginBottom: 20,
-  },
-  categoryTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginRight: 15,
-  },
-  categoryTitle: {
-    color: '#1A1A1A',
-    fontSize: 22,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-  },
-  categoryBadge: {
-    backgroundColor: '#D7CFC2',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-  },
-  categoryBadgeText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#1A1A1A',
-  },
-  categoryLine: {
-    flex: 1,
-    height: 2,
-    backgroundColor: '#1A1A1A',
-    opacity: 0.1,
-  },
-  productsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 14,
-    justifyContent: 'space-between',
-    gap: 16, // Usar gap para espaciado uniforme
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    marginBottom: 20,
-    flexGrow: 1,
-    shadowColor: '#4a3c2f',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 15,
-    elevation: 5,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(215, 207, 194, 0.3)',
-  },
-  imageContainer: {
-    position: 'relative',
-    height: 180,
-    backgroundColor: '#F7F7F7',
-  },
-  productImage: {
-    width: '100%',
-    height: '100%',
-  },
-  priceBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    backgroundColor: 'rgba(26, 26, 26, 0.85)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    backdropFilter: 'blur(4px)', // Solo funciona en web pero es un buen detalle
-  },
-  priceBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  cardContent: {
-    padding: 16,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  productName: {
-    color: '#1A1A1A',
-    fontSize: 18,
-    fontWeight: '900',
-    marginBottom: 6,
-    letterSpacing: -0.5,
-  },
-  productDescription: {
-    color: '#666666',
-    fontSize: 12,
-    lineHeight: 18,
-    marginBottom: 16,
-    minHeight: 36,
-  },
-  categoryTag: {
-    backgroundColor: '#F0E6D7',
-    color: '#4A3C2F',
-    fontSize: 10,
-    fontWeight: '800',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  coverageContainer: {
-    marginBottom: 16,
-  },
-  optionsLabel: {
-    fontSize: 11,
-    color: '#999',
-    fontWeight: '700',
-    marginBottom: 6,
-    textTransform: 'uppercase',
-  },
-  coverageRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  coverageOption: {
-    borderWidth: 1.5,
-    borderColor: '#E8E2D9',
-    backgroundColor: '#FDFDFD',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  coverageSelected: {
-    backgroundColor: '#1A1A1A',
-    borderColor: '#1A1A1A',
-  },
-  coverageText: {
-    color: '#666',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  coverageTextSelected: {
-    color: '#FFF',
-  },
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  quantityLabel: {
-    fontSize: 11,
-    color: '#999',
-    fontWeight: '700',
-    marginRight: 10,
-    textTransform: 'uppercase',
-  },
-  quantityButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#E8E2D9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quantityButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-  },
-  quantityText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-    marginHorizontal: 15,
-  },
-  addToCartButton: {
-    backgroundColor: '#1A1A1A',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 14,
-    gap: 8,
-  },
-  addToCartText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 20,
-    margin: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    elevation: 10,
-    maxWidth: 400,
-    width: '90%',
-  },
-  productModalContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    margin: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    elevation: 10,
-    maxWidth: 400,
-    width: '90%',
-    maxHeight: '90%',
-    position: 'relative',
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    zIndex: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 15,
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closeButtonText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  modalTitle: {
-    color: '#1A1A1A',
-    fontSize: 24,
-    fontWeight: '900',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  modalDescription: {
-    color: '#666666',
-    fontSize: 16,
-    lineHeight: 24,
-    textAlign: 'center',
-  },
-  productModalContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    margin: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    elevation: 10,
-    maxWidth: 400,
-    width: '90%',
-    maxHeight: '90%',
-  },
-  modalScrollContent: {
-    flexGrow: 1,
-  },
-  modalProductImage: {
-    width: '100%',
-    height: 200,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  modalProductInfo: {
-    padding: 20,
-  },
-  modalProductCategory: {
-    backgroundColor: '#F0E6D7',
-    color: '#4A3C2F',
-    fontSize: 10,
-    fontWeight: '800',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    alignSelf: 'flex-start',
-    marginBottom: 8,
-  },
-  modalProductName: {
-    color: '#1A1A1A',
-    fontSize: 24,
-    fontWeight: '900',
-    marginBottom: 4,
-  },
-  modalProductFlavor: {
-    color: '#6b7280',
-    fontSize: 14,
-    marginBottom: 10,
-  },
-  modalProductDescription: {
-    color: '#666666',
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  modalProductPrice: {
-    color: '#1A1A1A',
-    fontSize: 20,
-    fontWeight: '900',
-    marginBottom: 16,
-  },
-  modalCoverageSection: {
-    marginBottom: 16,
-  },
-  modalCoverageTitle: {
-    fontSize: 11,
-    color: '#999',
-    fontWeight: '700',
-    marginBottom: 6,
-    textTransform: 'uppercase',
-  },
-  modalCoverageRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  modalCoverageOption: {
-    borderWidth: 1.5,
-    borderColor: '#E8E2D9',
-    backgroundColor: '#FDFDFD',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   modalCoverageSelected: {
-    backgroundColor: '#1A1A1A',
-    borderColor: '#1A1A1A',
+    backgroundColor: '#D2B48C',
+    borderColor: '#D2B48C',
   },
   modalCoverageText: {
-    fontSize: 11,
+    color: '#FFFFFF',
+    fontSize: 13,
     fontWeight: '700',
-    color: '#666',
   },
   modalCoverageSelectedText: {
-    color: '#FFF',
-  },
-  modalQuantityRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    justifyContent: 'center',
-  },
-  modalQtyBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#E8E2D9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalQtyBtnText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-  },
-  modalQtyText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-    marginHorizontal: 16,
-  },
-  modalButtonsRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  modalAddToCartButton: {
-    flex: 1,
-    backgroundColor: '#1A1A1A',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 16,
-    gap: 8,
-  },
-  modalAddToCartText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
-  },
-  modalViewDetailsButton: {
-    flex: 1,
-    backgroundColor: '#F0E6D7',
-    paddingVertical: 12,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  modalViewDetailsText: {
-    color: '#1A1A1A',
-    fontSize: 14,
-    fontWeight: '800',
-  },
-  footerContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 20,
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 40,
-    borderWidth: 1,
-    borderColor: 'rgba(215, 207, 194, 0.6)',
-  },
-  footerTitle: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#1A1A1A',
-    marginBottom: 12,
-    letterSpacing: 1,
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#4a4a4a',
-    lineHeight: 22,
-  },
-  workButton: {
-    marginTop: 18,
-    backgroundColor: '#1A1A1A',
-    paddingVertical: 12,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  workButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
-  },
-  workModalContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    margin: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    elevation: 10,
-    maxWidth: 400,
-    width: '90%',
-    padding: 20,
-    alignItems: 'center',
-  },
-  workModalImage: {
-    width: 160,
-    height: 160,
-    marginBottom: 16,
-  },
-  workModalTitle: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#1A1A1A',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  workModalText: {
-    fontSize: 14,
-    color: '#4a4a4a',
-    lineHeight: 20,
-    textAlign: 'center',
-    marginBottom: 18,
-  },
-  workModalButton: {
-    backgroundColor: '#1A1A1A',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    width: '100%',
-    alignItems: 'center',
-  },
-  workModalButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
+    color: '#121212',
   },
 });

@@ -15,14 +15,14 @@ export default function App() {
     <SafeAreaProvider>
       <CartProvider>
         <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: { backgroundColor: '#FFFFFF' },
-            headerTintColor: '#1A1A1A',
-            headerTitleStyle: { fontWeight: 'bold' },
-            contentStyle: { backgroundColor: '#F9F8F6' }
-          }}
-        >
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: { backgroundColor: '#121212' },
+              headerTintColor: '#FFFFFF',
+              headerTitleStyle: { fontWeight: 'bold' },
+              contentStyle: { backgroundColor: '#121212' }
+            }}
+          >
           <Stack.Screen 
             name="Home" 
             component={HomeScreen} 
